@@ -24,7 +24,7 @@ module.exports = app => {
   //获取分类的章节
   router.get('/api/v1/course', controller.course.courseByTag);
   //获取指定的章节所有项目
-  router.get('/api/v1/course/project', controller.course.allProject);
+  router.get('/api/v1/course/allProject', controller.course.allProject);
   router.post('/api/v1/course/project', controller.course.project);
 
   //测试

@@ -83,9 +83,12 @@ class CourseController extends Controller {
         'title': result[0].course_name,
         'introduction': result[0].course_description
       }
-      res.data.body = [];
+      res.data.body = {
+        'title':'章节内容',
+        'project': []
+      };
       for(let i=0;i<result.length;i++) {
-        res.data.body.push({
+        res.data.body.project.push({
           'project_id': result[i].project_serial,
           'title': result[i].project_name,
           'content': result[i].project_description
@@ -101,20 +104,44 @@ class CourseController extends Controller {
   //获取具体项目内容
   async project() {
     var requestMsg = this.ctx.request.body;
-    let res = {};
-
+    var res = {};
+    res.data = {};
     var result = await this.app.mysql.select('specific_project',{
       where: {
         course_id: requestMsg.course_id,
         project_id: requestMsg.project_id
       },
-      columns: ['project_id','project_name','document']
+      columns: ['course_id','course_name','project_id','project_name','document','all_steps','step_amount']
     })
-    res = result[0]  
     
-    
-    this.ctx.body = res;
+   
+    // var str = 'as\n\r## 还是\r\nw'
+    // var pattern = /##+[\S*]+.\\r\\n/;
+    // var pattern = /##(.*?)(?=\\r\\n]).w/;
 
+    
+    // var pattern = /(?<=#{2}\s).*?(?=\r\n)/g;
+    // let r = res.document.match(pattern);
+    // // let r = str.match(pattern)
+    // console.log(r)
+
+    if(result.length!=0) {
+      
+      res.msg = '获取项目信息成功'
+      res.data.course_id = result[0].course_id;
+      res.data.course_name = result[0].course_name;
+      res.data.project_id = result[0].project_id;
+      res.data.project_name = result[0].project_name;
+      res.data.step_amount = result[0].step_amount;
+      res.data.steps = result[0].all_steps.split(';');
+      res.data.document_md = result[0].document;
+      res.data.document_html = marked(result[0].document)
+     
+    } else {
+      res.msg = '获取项目信息失败';
+      this.ctx.status =400;
+    }
+    this.ctx.body = res;
   }
 
 }
