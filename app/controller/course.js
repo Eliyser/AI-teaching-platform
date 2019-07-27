@@ -34,10 +34,23 @@ class CourseController extends Controller {
     for(let i=0;i<result.length;i++) {
       let str = result[i].tag;
       result[i].tag = str.split('&');
+      result[i].active = false;
     }
     if(result.length!=0) {
-      res.msg = '获取章节信息成功'
-      res.data = result
+      result.unshift({
+        "active": true,	//
+        "course_name": "全部",
+        "course_id": 1, 
+        "course_description": "",
+        "project_amount": 4, 
+        "tag": ["全部"], 
+        "image_url": "", 
+        "learn_amount": 0
+      })
+
+
+      res.msg = '获取章节信息成功';
+      res.data = result;
     } else {
       // this.ctx.throw('400','获取章节信息失败');
       res.msg = '获取章节信息失败';
