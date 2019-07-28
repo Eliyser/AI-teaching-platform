@@ -7,7 +7,11 @@
 //   //   enable: true,
 //   // }
 // };
-
+//ejs插件
+exports.ejs={ 
+  enable:true, 
+  package:'egg-view-ejs',
+};
 //jwt
 exports.jwt = {
   enable: true,

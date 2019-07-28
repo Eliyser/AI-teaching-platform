@@ -23,6 +23,13 @@ module.exports = appInfo => {
     // myAppName: 'egg',
   };
 
+  //配置模板引擎
+  config.view={
+    mapping: {
+      '.html': 'ejs',
+    },
+  };
+
   //配置mysql
   config.mysql = {
     // 单数据库信息配置

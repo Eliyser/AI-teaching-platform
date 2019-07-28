@@ -31,6 +31,23 @@ class UserService extends Service {
         const token = this.createToken({
           username: loginMsg.username
         });
+
+        if(vertifyUser.first_login_time==null) {
+          
+          let date = new Date()
+          let time = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
+          console.log(time);
+          const row = {
+            first_login_time: time
+          }
+          const options = {
+            where:{
+              username: loginMsg.username}
+          }
+          const result = await this.app.mysql.update('user',row,options);
+
+        }
+
         res.code = 1;
         res.token = token;
       }

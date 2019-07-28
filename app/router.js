@@ -18,6 +18,8 @@ module.exports = app => {
   router.post('/api/v1/login', checkToken, controller.user.login);
   //验证用户登录状态
   router.get('/api/v1/verifyUser', controller.user.vertify);
+  //获取用户信息
+  router.get('/api/v1/userMsg', controller.user.userMsg);
 
   //获取所有章节
   router.get('/api/v1/course/all_courses', controller.course.allCourse);
