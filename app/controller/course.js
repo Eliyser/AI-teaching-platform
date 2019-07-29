@@ -102,7 +102,7 @@ class CourseController extends Controller {
       };
       for(let i=0;i<result.length;i++) {
         res.data.body.project.push({
-          'project_id': result[i].project_serial,
+          'project_id': result[i].project_id,
           'title': result[i].project_name,
           'content': result[i].project_description
         })
