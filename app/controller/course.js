@@ -7,23 +7,32 @@ var marked = require("marked");
 
 class CourseController extends Controller {
   async test() {
-    var path = 'C:/Users/11023/Desktop/AI教学平台/Linux项目实训/Linux系统简介.md';
-    var res = fs.readFileSync(path);
-    var str = res.toString();
-    // console.log(str.length)
-    let html_str = marked(str)
+    // var path = 'C:/Users/11023/Desktop/AI教学平台/Linux项目实训/Linux系统简介.md';
+    // var res = fs.readFileSync(path);
+    // var str = res.toString();
+    // // console.log(str.length)
+    // let html_str = marked(str)
     
-    const row = {
-      document: str
-    }
-    const options = {
-      where: {
-        project_serial: 1
-      }
-    }
-    const result = await this.app.mysql.update('project', row, options)
+    // const row = {
+    //   document: str
+    // }
+    // const options = {
+    //   where: {
+    //     project_serial: 1
+    //   }
+    // }
+    // const result = await this.app.mysql.update('project', row, options)
     // console.log(result)
-    this.ctx.body = html_str;
+    const result = await this.app.mysql.get('project',{
+      project_id: 1,
+      course_id: 1
+    })
+    let html_str = marked(result.document);
+    let s = html_str.split(/(?=<h2)/g);
+    let title = s.shift();
+    console.log(title)
+    // console.log()
+    this.ctx.body = s[0];
     
   }
 
@@ -47,7 +56,6 @@ class CourseController extends Controller {
         "image_url": "", 
         "learn_amount": 0
       })
-
 
       res.msg = '获取章节信息成功';
       res.data = result;
@@ -126,17 +134,6 @@ class CourseController extends Controller {
       },
       columns: ['course_id','course_name','project_id','project_name','document','all_steps','step_amount']
     })
-    
-   
-    // var str = 'as\n\r## 还是\r\nw'
-    // var pattern = /##+[\S*]+.\\r\\n/;
-    // var pattern = /##(.*?)(?=\\r\\n]).w/;
-
-    
-    // var pattern = /(?<=#{2}\s).*?(?=\r\n)/g;
-    // let r = res.document.match(pattern);
-    // // let r = str.match(pattern)
-    // console.log(r)
 
     if(result.length!=0) {
       
@@ -148,8 +145,14 @@ class CourseController extends Controller {
       res.data.step_amount = result[0].step_amount;
       res.data.steps = result[0].all_steps.split(';');
       res.data.document_md = result[0].document;
-      res.data.document_html = marked(result[0].document)
-     
+      
+      let html_str = marked(result[0].document)
+      let steps = html_str.split(/(?=<h2)/g);
+      steps.shift();
+      res.data.steps_html = steps;
+
+      
+
     } else {
       res.msg = '获取项目信息失败';
       this.ctx.status =400;
