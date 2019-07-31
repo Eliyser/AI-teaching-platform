@@ -34,7 +34,6 @@ module.exports = options => {
           else {
             ctx.state.user = decode.username;
           }
-          
 
         } catch (e) {
           console.log(e);
@@ -42,9 +41,5 @@ module.exports = options => {
         await next();
       } 
       
-    // } else {
-    //   //post请求
-    //   await next();
-    // }
   };
 };

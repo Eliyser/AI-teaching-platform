@@ -23,17 +23,25 @@ class CourseController extends Controller {
     // }
     // const result = await this.app.mysql.update('project', row, options)
     // console.log(result)
-    const result = await this.app.mysql.get('project',{
-      project_id: 1,
-      course_id: 1
-    })
-    let html_str = marked(result.document);
-    let s = html_str.split(/(?=<h2)/g);
-    let title = s.shift();
-    console.log(title)
-    // console.log()
-    this.ctx.body = s[0];
-    
+    // const result = await this.app.mysql.get('project',{
+    //   project_id: 1,
+    //   course_id: 1
+    // })
+    // let html_str = marked(result.document);
+    // let s = html_str.split(/(?=<h2)/g);
+    // let title = s.shift();
+    // console.log(title)
+    // // console.log()
+    // this.ctx.body = s[0];
+    let res2 = await this.app.mysql.select('project', {
+      where: {
+          course_id: 1,
+          project_id: 1
+      },
+      columns: ['step_amount']
+  })
+  console.log(res2[0])
+    this.ctx.body  = res2[0].step_amount
   }
 
   //获取所有章节信息
@@ -144,15 +152,12 @@ class CourseController extends Controller {
       res.data.project_name = result[0].project_name;
       res.data.step_amount = result[0].step_amount;
       res.data.steps = result[0].all_steps.split(';');
-      res.data.document_md = result[0].document;
       
       let html_str = marked(result[0].document)
       let steps = html_str.split(/(?=<h2)/g);
       steps.shift();
       res.data.steps_html = steps;
-
       
-
     } else {
       res.msg = '获取项目信息失败';
       this.ctx.status =400;

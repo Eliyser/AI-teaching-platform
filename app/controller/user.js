@@ -94,55 +94,29 @@ class UserController extends Controller {
       this.ctx.throw(400, '注销失败');
     }
   }
-
-
+  //获取用户信息接口
   async userMsg() {
 
-    var token = this.ctx.cookies.get('egg_token', {
-      signed: true,
-    })
-    if (token === undefined) {
-      console.log('没有token')
-      this.ctx.throw(401, '未授权，请登录');
-    } else {
-      let decode;
-      try {
-        decode = JWT.verify(token, "xiaoAqianduanzu");
-        if (!decode || !decode.username) {
-
-          ctx.throw(401, '未授权，请登录');
-        }
-        if (Date.now() / 1000 - decode.exp > 0) {
-          ctx.throw(402, '登录已过期，请重新登录');
-        }
-        let result = await this.app.mysql.select('user',{
+    let result = await this.app.mysql.select('user',{
       
-          where:{username: decode.username},
-          columns: ['username','school','first_login_time']
-        })
-        if(result.length == 0) {
-          this.ctx.body = {
-            msg: '用户信息获取失败'
-          }
+      where:{username: this.ctx.state.user},
+      columns: ['username','school','first_login_time']
+    })
+    if(result.length == 0) {
+      this.ctx.body = {
+        msg: '用户信息获取失败'
+      }
 
-        } else {
-          this.ctx.body = {
-            msg: '用户信息获取成功',
-            data: [{
-                'stuName':result[0].username,
-                'stuSchool':result[0].school,
-                'stuAddtime':result[0].first_login_time,
-            }]
-          }
-        }
-        
-
-
-      } catch (e) {
-        console.log(e);
+    } else {
+      this.ctx.body = {
+        msg: '用户信息获取成功',
+        data: [{
+            'stuName':result[0].username,
+            'stuSchool':result[0].school,
+            'stuAddtime':result[0].first_login_time,
+        }]
       }
     }
-    
 
   } 
 

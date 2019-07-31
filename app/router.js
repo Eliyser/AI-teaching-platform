@@ -19,7 +19,7 @@ module.exports = app => {
   //验证用户登录状态
   router.get('/api/v1/verifyUser', controller.user.vertify);
   //获取用户信息
-  router.get('/api/v1/userMsg', controller.user.userMsg);
+  router.get('/api/v1/userMsg',  checkToken, controller.user.userMsg);
 
   //获取所有章节
   router.get('/api/v1/course/all_courses', controller.course.allCourse);
@@ -29,6 +29,19 @@ module.exports = app => {
   router.get('/api/v1/course/allProject', controller.course.allProject);
   router.post('/api/v1/course/project', controller.course.project);
 
+  //记录学生学习进度
+  router.post('/api/v1/record/progress', checkToken, controller.record.learning_progress);
+  //记录学生学习日期与时长
+  router.post('/api/v1/record/time', checkToken, controller.record.learning_date)
+  //获取学生学习时长记录
+  router.get('/api/v1/record/time', checkToken, controller.record.show_time)
+  //获取学生学习进度记录
+  router.get('/api/v1/record/progress', checkToken, controller.record.show_progress)
+  //删除学生学习记录
+  router.delete('/api/v1/record', checkToken, controller.record.delete);
+
+
+  
   //测试
   router.get('/api/v1/test', controller.course.test);
 
