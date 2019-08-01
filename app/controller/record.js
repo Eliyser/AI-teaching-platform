@@ -115,6 +115,8 @@ class RecordController extends Controller {
       if(result.length !== 0) {
         for(let i=0;i<result.length;i++) {
           res.data.push({
+            "course_id": result[i].course_id,
+            "project_id": result[i].project_id,
             "courseImg": result[i].image_url,
             "projectName": result[i].project_name,
             "courseName":  result[i].course_name,
