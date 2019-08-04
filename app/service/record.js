@@ -8,12 +8,12 @@ class RecordService extends Service {
         var res = {}
 
         let res1 = await this.app.mysql.get('learning_date_record', {
-            username: req.username,
+            user_id: req.user_id,
         })
         if (res1 == null) {
             //说明用户还没有记录，插入记录
             let res2 = await this.app.mysql.insert('learning_date_record', {
-                username: req.username,
+                user_id: req.user_id,
                 date: req.date,
                 count: req.time
             })
@@ -28,13 +28,13 @@ class RecordService extends Service {
         } else {
             //用户有记录，判断日期是否同天，累加当天学习时长
             let res2 = await this.app.mysql.get('learning_date_record', {
-                username: req.username,
+                user_id: req.user_id,
                 date: req.date
             })
             if (res2 == null) {
                 //不同日期，插入记录
                 let res3 = await this.app.mysql.insert('learning_date_record', {
-                    username: req.username,
+                    user_id: req.user_id,
                     date: req.date,
                     count: req.time
                 })
@@ -52,7 +52,7 @@ class RecordService extends Service {
                     count: parseInt(req.time) + parseInt(res2.count)
                 }, {
                         where: {
-                            username: req.username,
+                            user_id: req.user_id,
                             date: req.date
                         }
                     })
@@ -74,13 +74,13 @@ class RecordService extends Service {
         var res = {};
 
         let res1 = await this.app.mysql.get('learning_progress_record', {
-            username: req.username,
+            user_id: req.user_id,
             course_id: req.course_id
         })
         if (res1 === null) {
             //用户没有学习记录
             let res2 = await this.app.mysql.insert('learning_progress_record', {
-                username: req.username,
+                user_id: req.user_id,
                 course_id: req.course_id,
                 project_id: req.project_id,
                 current_step: req.current_step,
@@ -108,7 +108,7 @@ class RecordService extends Service {
                 status: (parseInt(req.current_step) < parseInt(res2[0].step_amount)) ? 'learning' : 'finished'
             }, {
                     where: {
-                        username: req.username,
+                        user_id: req.user_id,
                         course_id: req.course_id
                         
                     }

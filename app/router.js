@@ -22,12 +22,15 @@ module.exports = app => {
   router.get('/api/v1/userMsg',  checkToken, controller.user.userMsg);
 
   //获取所有章节
-  router.get('/api/v1/course/all_courses', controller.course.allCourse);
+  router.get('/api/v1/course/all_courses', checkToken, controller.course.allCourse);
   //获取分类的章节
   router.get('/api/v1/course', controller.course.courseByTag);
   //获取指定的章节所有项目
   router.get('/api/v1/course/allProject', controller.course.allProject);
+  //获取指定的章节具体项目
   router.post('/api/v1/course/project', controller.course.project);
+  //获取所有标签
+  router.get('/api/v1/course/tag',controller.course.getTag)
 
   //记录学生学习进度
   router.post('/api/v1/record/progress', checkToken, controller.record.learning_progress);
@@ -40,10 +43,16 @@ module.exports = app => {
   //删除学生学习记录
   router.delete('/api/v1/record', checkToken, controller.record.delete);
 
-
+  //管理员模块
+  router.get('/api/v1/admin/course/all_courses', controller.admin.allCourse);
+  router.get('/api/v1/admin/stuId', controller.admin.getBeginId);
+  router.resources('stuInfo', '/api/v1/admin/stuInfo', controller.stuInfo)
+  
+  
+  
   
   //测试
-  router.get('/api/v1/test', controller.course.test);
+  router.get('/api/v1/test', controller.home.test);
 
 
 };

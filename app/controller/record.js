@@ -16,7 +16,7 @@ class RecordController extends Controller {
       await this.ctx.validate(rule, req);//校验数据
       let date = new Date()
       req.date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
-      req.username = this.ctx.state.user;
+      req.user_id = this.ctx.state.user;
       const result = await this.ctx.service.record.learning_date(req);
       this.ctx.body = result;
     } catch (e) {
@@ -46,7 +46,7 @@ class RecordController extends Controller {
     };
     try {
       await this.ctx.validate(rule, req);//校验数据
-      req.username = this.ctx.state.user;
+      req.user_id = this.ctx.state.user;
       const result = await this.ctx.service.record.learning_progress(req);
       this.ctx.body = result;
 
@@ -63,7 +63,7 @@ class RecordController extends Controller {
     var res = {};
     let res1 = await this.app.mysql.select('learning_date_record',{
       where: {
-        username: this.ctx.state.user
+        user_id: this.ctx.state.user
       },
       columns: ['date','count'],
       orders: [['date','desc']]
@@ -108,7 +108,7 @@ class RecordController extends Controller {
     try {
       let result = await this.app.mysql.select('learning_progress',{
         where: {
-          username: this.ctx.state.user
+          user_id: this.ctx.state.user
         }
       });
       res.data = [];
@@ -132,11 +132,12 @@ class RecordController extends Controller {
     this.ctx.body = res;
 
   }
+  //删除课程进度
   async delete() {
     var res = {};
     let id = this.ctx.query.course_id;
     let result = await this.app.mysql.delete('learning_progress_record',{
-      username: this.ctx.state.user,
+      user_id: this.ctx.state.user,
       course_id: id 
     })
     if(result.affectedRows === 1) {
@@ -145,7 +146,7 @@ class RecordController extends Controller {
       res.msg = '删除学习记录失败'
       this.ctx.status = 400
     }
-
+    
     this.ctx.body = res;
   }
 

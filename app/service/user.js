@@ -18,7 +18,7 @@ class UserService extends Service {
     var res = {};
     //将登录信息与数据库中的信息进行比对，存在该用户返回true
     const vertifyUser = await this.app.mysql.get('user', {
-      username: loginMsg.username
+      user_id: loginMsg.user_id
     });
 
     if (!vertifyUser) {
@@ -29,7 +29,7 @@ class UserService extends Service {
         res.code = -1;
       } else {
         const token = this.createToken({
-          username: loginMsg.username
+          user_id: loginMsg.user_id
         });
 
         if(vertifyUser.first_login_time==null) {
@@ -42,12 +42,15 @@ class UserService extends Service {
           }
           const options = {
             where:{
-              username: loginMsg.username}
+              user_id: loginMsg.user_id}
           }
           const result = await this.app.mysql.update('user',row,options);
 
         }
-
+        res.userInfo = {
+          user_id: loginMsg.user_id,
+          user_name: vertifyUser.user_name
+        };
         res.code = 1;
         res.token = token;
       }

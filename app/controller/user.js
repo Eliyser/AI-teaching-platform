@@ -12,7 +12,7 @@ class UserController extends Controller {
     const { ctx } = this;
     //接口数据规则
     const rule = {
-      username: { type: 'string', required: true },
+      user_id: { type: 'int', required: true },
       password: { type: 'string', required: true }
     };
 
@@ -34,8 +34,8 @@ class UserController extends Controller {
           break;
         case 1:
           res.msg = '登录成功';
-          res.data = loginMsg.username;
-          //把token加入cookie
+          res.data = result.userInfo;
+          // 把token加入cookie
           ctx.cookies.set('egg_token', result.token, {
             maxAge: 24 * 3600 * 1000,
             httpOnly: true,
@@ -65,16 +65,16 @@ class UserController extends Controller {
       let decode;
       try {
         decode = JWT.verify(token, "xiaoAqianduanzu");
-        if (!decode || !decode.username) {
+        if (!decode || !decode.user_id) {
 
           ctx.throw(401, '未授权，请登录');
         }
         if (Date.now() / 1000 - decode.exp > 0) {
           ctx.throw(402, '登录已过期，请重新登录');
         }
-        console.log(decode.username);
+        console.log(decode.user_id);
         this.ctx.body = {
-          username: decode.username
+          user_id: decode.user_id
         };
       } catch (e) {
         console.log(e);
@@ -99,8 +99,8 @@ class UserController extends Controller {
 
     let result = await this.app.mysql.select('user',{
       
-      where:{username: this.ctx.state.user},
-      columns: ['username','school','first_login_time']
+      where:{user_id: this.ctx.state.user},
+      columns: ['user_id','user_name','school','first_login_time']
     })
     if(result.length == 0) {
       this.ctx.body = {
@@ -111,7 +111,8 @@ class UserController extends Controller {
       this.ctx.body = {
         msg: '用户信息获取成功',
         data: [{
-            'stuName':result[0].username,
+            'stuId': result[0].user_id,
+            'stuName':result[0].user_name,
             'stuSchool':result[0].school,
             'stuAddtime':result[0].first_login_time,
         }]

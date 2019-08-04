@@ -6,72 +6,52 @@ var fs = require("fs");
 var marked = require("marked");
 
 class CourseController extends Controller {
-  async test() {
-    // var path = 'C:/Users/11023/Desktop/AI教学平台/Linux项目实训/Linux系统简介.md';
-    // var res = fs.readFileSync(path);
-    // var str = res.toString();
-    // // console.log(str.length)
-    // let html_str = marked(str)
-    
-    // const row = {
-    //   document: str
-    // }
-    // const options = {
-    //   where: {
-    //     project_serial: 1
-    //   }
-    // }
-    // const result = await this.app.mysql.update('project', row, options)
-    // console.log(result)
-    // const result = await this.app.mysql.get('project',{
-    //   project_id: 1,
-    //   course_id: 1
-    // })
-    // let html_str = marked(result.document);
-    // let s = html_str.split(/(?=<h2)/g);
-    // let title = s.shift();
-    // console.log(title)
-    // // console.log()
-    // this.ctx.body = s[0];
-    let res2 = await this.app.mysql.select('project', {
-      where: {
-          course_id: 1,
-          project_id: 1
-      },
-      columns: ['step_amount']
-  })
-  console.log(res2[0])
-    this.ctx.body  = res2[0].step_amount
-  }
-
+  
   //获取所有章节信息
   async allCourse() {
     var res = {};
-    const result = await this.app.mysql.select('course');
-    for(let i=0;i<result.length;i++) {
-      let str = result[i].tag;
-      result[i].tag = str.split('&');
-      result[i].active = false;
-    }
-    if(result.length!=0) {
-      result.unshift({
-        "active": true,	//
-        "course_name": "全部",
-        "course_id": 1, 
-        "course_description": "",
-        "project_amount": 4, 
-        "tag": ["全部"], 
-        "image_url": "", 
-        "learn_amount": 0
-      })
-
-      res.msg = '获取章节信息成功';
-      res.data = result;
-    } else {
-      // this.ctx.throw('400','获取章节信息失败');
+    let stuId = this.ctx.state.user;
+    let result0 = await this.app.mysql.get('user',{
+      user_id: stuId
+    })
+    if(result0.length==0) {
       res.msg = '获取章节信息失败';
       this.ctx.status = 400;
+    } else {
+      let strArrray = result0.visable_course.split(',')
+      let courseArray = [];
+      strArrray.forEach(function(data){
+        courseArray.push(parseInt(data))
+      });
+      const result = await this.app.mysql.select('course',{
+        where: {course_id: courseArray}
+      });
+      for(let i=0;i<result.length;i++) {
+        let str = result[i].tag;
+        result[i].tag = str.split('&');
+        result[i].active = false;
+      }
+      if(result.length!=0) {
+        result.unshift({
+          "active": true,	//
+          "course_name": "全部",
+          "course_id": 0, 
+          "course_description": "",
+          "project_amount": 0, 
+          "tag": ["全部"], 
+          "image_url": "", 
+          "learn_amount": 0
+        })
+  
+        res.msg = '获取章节信息成功';
+        res.data = result;
+      } else {
+        // this.ctx.throw('400','获取章节信息失败');
+        res.msg = '获取章节信息失败';
+        this.ctx.status = 400;
+      }
     }
+    
     this.ctx.body = res;
   }
   //根据标签获取分类的章节
@@ -164,7 +144,32 @@ class CourseController extends Controller {
     }
     this.ctx.body = res;
   }
+  //获取所有标签
+  async getTag() {
+    
+    let result = await this.app.mysql.select('course',{
+      columns: ['tag']
+    });
+    
+    if(result.length===0) {
+      this.ctx.body = {
+        msg: '获取信息失败'
+      }
+      this.ctx.status = 400
+    } else {
+      let set = [];
+      await result.forEach(element => {
+        let str = element.tag.split('&');
+        set = set.concat(str);
+      });
+      this.ctx.body = {
+        msg: '获取信息成功',
+        data: set
+      };
+    }
+    
 
+  }
 }
 
 module.exports = CourseController;

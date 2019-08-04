@@ -25,14 +25,14 @@ module.exports = options => {
         try {
           console.log('token :'+token);
           decode = JWT.verify(token, options.secret);
-          if (!decode || !decode.username) {
+          if (!decode || !decode.user_id) {
             ctx.throw(401, '未授权，请登录');
           }
           else if (Date.now()/1000 - decode.exp > 0) {
             ctx.throw(402, '登录已过期，请重新登录');
           }
           else {
-            ctx.state.user = decode.username;
+            ctx.state.user = decode.user_id;
           }
 
         } catch (e) {
