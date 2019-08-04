@@ -1,7 +1,7 @@
 'use strict';
 
 const Service = require('egg').Service;
-
+const JWT = require('jsonwebtoken');
 class AdminService extends Service {
   //生成token函数
   createToken(data) {
@@ -11,7 +11,7 @@ class AdminService extends Service {
     });
   }
 
-    async login() {
+    async login(loginMsg) {
         var res = {};
         //将登录信息与数据库中的信息进行比对，存在该用户返回true
         const vertifyUser = await this.app.mysql.get('admin', {

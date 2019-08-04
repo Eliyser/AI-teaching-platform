@@ -44,6 +44,7 @@ module.exports = app => {
   router.delete('/api/v1/record', checkToken, controller.record.delete);
 
   //管理员模块
+  router.post('/api/v1/admin/login', controller.admin.login)
   router.get('/api/v1/admin/course/all_courses', controller.admin.allCourse);
   router.get('/api/v1/admin/stuId', controller.admin.getBeginId);
   router.resources('stuInfo', '/api/v1/admin/stuInfo', controller.stuInfo)

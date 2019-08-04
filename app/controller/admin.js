@@ -8,11 +8,12 @@ class AdminController extends Controller {
       const { ctx } = this;
       //接口数据规则
       const rule = {
-        name: { type: 'String', required: true },
+        name: { type: 'string', required: true },
         password: { type: 'string', required: true }
       };
   
       var loginMsg = ctx.request.body;
+      console.log(loginMsg)
       try {
         await ctx.validate(rule, loginMsg);//校验数据
         //把密码进行md5加密
