@@ -157,11 +157,14 @@ class CourseController extends Controller {
       }
       this.ctx.status = 400
     } else {
-      let set = [];
+      let array = [];
       await result.forEach(element => {
         let str = element.tag.split('&');
-        set = set.concat(str);
+        array = array.concat(str);
       });
+    
+      let set =[...new Set(array)];
+      
       this.ctx.body = {
         msg: '获取信息成功',
         data: set
