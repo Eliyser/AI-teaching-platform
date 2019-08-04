@@ -39,11 +39,13 @@ class StuInfoController extends Controller {
 
     //post
     async create() {
+        
         //接口数据规则
         const rule = {
             info: { type: 'array', required: true }
         };
         let req = this.ctx.request.body;
+        console.log(req);
         var res = {};
         try {
             await this.ctx.validate(rule, req);//校验数据
@@ -93,6 +95,7 @@ class StuInfoController extends Controller {
             info: { type: 'array', required: true }
         };
         let req = this.ctx.request.body;
+        console.log(req);
         var res = {};
         try {
             await this.ctx.validate(rule, req);//校验数据
