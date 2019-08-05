@@ -12,7 +12,7 @@ class HomeController extends Controller {
   async admin() {
     const { ctx } = this;
     // ctx.body = 'hi, egg';
-    await ctx.render('index');
+    await ctx.render('index_admin');
   }
   async test() {
     // var path = 'C:/Users/11023/Desktop/AI教学平台/Linux项目实训/Linux系统简介.md';
