@@ -8,6 +8,7 @@ module.exports = app => {
 
 
   router.get('/', controller.home.index);
+  router.get('/admin',controller.home.admin)
   //检查登录情况的中间件
   const checkToken = app.middleware.checkToken({
     secret: "xiaoAqianduanzu"
@@ -45,6 +46,8 @@ module.exports = app => {
 
   //管理员模块
   router.post('/api/v1/admin/login', controller.admin.login)
+  //验证管理员登录状态
+  router.get('/api/v1/admin/verifyAdmin', controller.admin.vertify);
   router.get('/api/v1/admin/course/all_courses', controller.admin.allCourse);
   router.get('/api/v1/admin/stuId', controller.admin.getBeginId);
   router.resources('stuInfo', '/api/v1/admin/stuInfo', controller.stuInfo)
