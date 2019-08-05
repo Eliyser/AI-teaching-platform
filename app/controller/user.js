@@ -73,8 +73,10 @@ class UserController extends Controller {
           ctx.throw(402, '登录已过期，请重新登录');
         }
         console.log(decode.user_id);
+        let result = await this.ctx.service.user.vertifyUser(decode.user_id)
         this.ctx.body = {
-          user_id: decode.user_id
+          user_id: decode.user_id,
+          user_name: result
         };
       } catch (e) {
         console.log(e);

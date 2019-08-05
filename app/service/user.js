@@ -59,6 +59,17 @@ class UserService extends Service {
     return res;
   }
 
+  async vertifyUser(params) {
+    let result = await this.app.mysql.get('user',{
+      user_id: params
+    })
+    if(result === null) {
+      return  'user_id出错，找不到用户名'
+    } else {
+      return  result.user_name
+
+    }
+  }
 }
 
 module.exports = UserService;

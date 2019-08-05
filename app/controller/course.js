@@ -133,6 +133,7 @@ class CourseController extends Controller {
       res.data.step_amount = result[0].step_amount;
       res.data.steps = result[0].all_steps.split(';');
       
+      
       let html_str = marked(result[0].document)
       let steps = html_str.split(/(?=<h2)/g);
       steps.shift();
