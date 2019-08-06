@@ -74,5 +74,9 @@ module.exports = appInfo => {
 
     secret: "xiaoAqianduanzu"
   };
+  config.multipart = {
+    // mode: 'file',
+    fileSize: '80mb',
+  };
   return config;
 };

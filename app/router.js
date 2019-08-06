@@ -52,6 +52,8 @@ module.exports = app => {
   router.get('/api/v1/admin/stuId', controller.admin.getBeginId);
   router.resources('stuInfo', '/api/v1/admin/stuInfo', controller.stuInfo)
   
+  //上传图片获取图片路径
+  router.post('/api/v1/admin/image/upload',controller.image.upload);
   
   
   
