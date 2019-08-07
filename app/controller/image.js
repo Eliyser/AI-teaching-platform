@@ -7,17 +7,6 @@ const pump = require('mz-modules/pump');
 
 class ImageController extends Controller {
     async upload() {
-        // const stream = await this.ctx.getFileStream();
-        // const filename = stream.filename;
-
-        // // const filename = stream.fields.name + path.extname(stream.filename).toLowerCase();
-        // console.log(stream)
-        // const target = path.join(this.config.baseDir, 'app/public/images/uploads', filename);
-        // const writeStream = fs.createWriteStream(target);
-        // await pump(stream, writeStream);
-        // console.log(stream.mimeType)
-        // console.log(writeStream)
-
 
         var res = {};
         res.imageUrl = [];
@@ -32,7 +21,7 @@ class ImageController extends Controller {
                 if (!part.filename) {
                     continue;
                 }
-                let target,url;
+                let target, url;
                 if (part.fieldname == "image") {
                     console.log(part)
                     //创建目录
@@ -47,17 +36,17 @@ class ImageController extends Controller {
                         console.log('创建目录成功');
                     });
                     //判断图片类型
-                    let type = part.mimeType.replace('image/','');
-                    if(type === 'jpeg') {type = 'jpg'}
+                    let type = part.mimeType.replace('image/', '');
+                    if (type === 'jpeg') { type = 'jpg' }
                     console.log(type)
                     //获取最新的url
-                    let result = await this.ctx.service.image.upload(fileFolderName,type)
-                    if(result !== null) {
+                    let result = await this.ctx.service.image.upload(fileFolderName, type)
+                    if (result !== null) {
                         target = path.join(targetDir, result.imageName);
                         url = result.url
                     } else {
                         res.msg = '上传失败',
-                        this.ctx.status = 400;
+                            this.ctx.status = 400;
                     }
                 }
                 const writeStream = fs.createWriteStream(target);

@@ -2,86 +2,19 @@
 
 const Controller = require('egg').Controller;
 
-var fs = require("fs");
 var marked = require("marked");
-
+const fs = require('fs');
+const path = require('path');
+const pump = require('mz-modules/pump');
 class CourseController extends Controller {
 
-  //获取所有章节信息
-  async allCourse() {
-    var res = {};
-    let stuId = this.ctx.state.user;
-    let result0 = await this.app.mysql.get('user', {
-      user_id: stuId
-    })
-    if (result0.length == 0) {
-      res.msg = '获取章节信息失败';
-      this.ctx.status = 400;
-    } else {
-      let strArrray = result0.visable_course.split(',')
-      let courseArray = [];
-      strArrray.forEach(function (data) {
-        courseArray.push(parseInt(data))
-      });
-      const result = await this.app.mysql.select('course', {
-        where: { course_id: courseArray }
-      });
-      for (let i = 0; i < result.length; i++) {
-        let str = result[i].tag;
-        result[i].tag = str.split('&');
-        result[i].active = false;
-      }
-      if (result.length != 0) {
-        result.unshift({
-          "active": true,	//
-          "course_name": "全部",
-          "course_id": 0,
-          "course_description": "",
-          "project_amount": 0,
-          "tag": ["全部"],
-          "image_url": "",
-          "learn_amount": 0
-        })
+  // get :id
+  // 获取指定章节信息下的所有项目信息
+  async show() {
 
-        res.msg = '获取章节信息成功';
-        res.data = result;
-      } else {
-        // this.ctx.throw('400','获取章节信息失败');
-        res.msg = '获取章节信息失败';
-        this.ctx.status = 400;
-      }
-    }
-
-    this.ctx.body = res;
-  }
-  //根据标签获取分类的章节
-  async courseByTag() {
-    var res = {};
-    res.data = [];
-    const tag = this.ctx.query.tag;
-    const result = await this.app.mysql.select('course');
-    var flag = false;
-    for (let i = 0; i < result.length; i++) {
-      let str = result[i].tag;
-      if (str.search(tag) != -1) {
-        result[i].tag = str.split('&');
-        res.data.push(result[i]);
-        flag = true;
-      }
-    }
-    if (result.length != 0 && flag == true) {
-      res.msg = '获取分类信息成功';
-    } else {
-      res.msg = '获取分类信息失败';
-      this.ctx.status = 400;
-    }
-    this.ctx.body = res;
-  }
-  //获取指定章节的所有项目
-  async allProject() {
     var res = {};
     res.data = {};
-    const c_id = this.ctx.query.id;
+    const c_id = parseInt(this.ctx.params.id);
     const result = await this.app.mysql.select('specific_project', {
       where: { course_id: c_id }
     })
@@ -107,52 +40,231 @@ class CourseController extends Controller {
       res.msg = '获取项目信息失败';
       this.ctx.status = 400;
     }
+    this.ctx.body = res;
 
+  }
+  // get query传值 如果带参数则判段是否有标签，没有带参数则显示全部
+  // 否则根据标签获取分类的章节
+  async index() {
+    var res = {};
+    res.data = [];
+    let stuId = this.ctx.state.user;
+    console.log(this.ctx.query)
+    if (Object.keys(this.ctx.query).length === 0) {
+      //无参数，显示全部
+      let result0 = await this.app.mysql.get('user', {
+        user_id: stuId
+      })
+      if (result0.length == 0) {
+        res.msg = '获取章节信息失败';
+        this.ctx.status = 400;
+      } else {
+        let strArrray = result0.visable_course.split(',')
+        let courseArray = [];
+        strArrray.forEach(function (data) {
+          courseArray.push(parseInt(data))
+        });
+        const result = await this.app.mysql.select('course', {
+          where: { course_id: courseArray }
+        });
+        for (let i = 0; i < result.length; i++) {
+          let str = result[i].tag;
+          result[i].tag = str.split('&');
+          result[i].active = false;
+        }
+        if (result.length != 0) {
+          result.unshift({
+            "active": true,	//
+            "course_name": "全部",
+            "course_id": 0,
+            "course_description": "",
+            "project_amount": 0,
+            "tag": ["全部"],
+            "image_url": "",
+            "learn_amount": 0
+          })
+
+          res.msg = '获取章节信息成功';
+          res.data = result;
+        } else {
+          // this.ctx.throw('400','获取章节信息失败');
+          res.msg = '获取章节信息失败';
+          this.ctx.status = 404;
+        }
+      }
+    }
+    else {
+      const tag = this.ctx.query.tag;
+      if (tag == undefined) {
+        res.msg = '参数不合法';
+        this.ctx.status = 400;
+      } else {
+        const result = await this.app.mysql.select('course');
+        var flag = false;
+        for (let i = 0; i < result.length; i++) {
+          let str = result[i].tag.split('&');
+          let isfind = false;
+          await str.forEach(element => {
+            if (element === tag) {
+              isfind = true;
+            }
+          });
+
+          if (isfind === true) {
+            result[i].tag = str;
+            res.data.push(result[i]);
+            flag = true;
+          }
+        }
+        if (result.length != 0 && flag == true) {
+          res.msg = '获取分类信息成功';
+        } else {
+          res.msg = '获取分类信息失败';
+          this.ctx.status = 400;
+        }
+      }
+    }
     this.ctx.body = res;
   }
-  //获取具体项目内容
-  async project() {
-    var requestMsg = this.ctx.request.body;
+
+  // post 增加课程
+  async create() {
+
     var res = {};
-    res.data = {};
-    var result = await this.app.mysql.select('specific_project', {
-      where: {
-        course_id: requestMsg.course_id,
-        project_id: requestMsg.project_id
-      },
-      columns: ['course_id', 'course_name', 'project_id', 'project_name', 'document', 'all_steps', 'step_amount']
-    })
+    //接收文件的形式接收参数
+    const parts = this.ctx.multipart();
+    let part;
+    var insertInfo = {};
+    let result0 = await this.app.mysql.select('course', {
+      columns: ['course_id'],
+      orders: [['course_id', 'desc']]
+    });
+    var id = parseInt(result0[0].course_id) + 1
+    while ((part = await parts()) != null) {
+      console.log(part)
+      if (part.length) {
+        // arrays are busboy fields
+        if (part[0] === 'course_name') {
+          insertInfo.course_name = part[1];
+        }
+        if (part[0] === 'description') {
+          insertInfo.course_description = part[1]
+        }
+        if (part[0] === 'tag') {
+          insertInfo.tag = part[1]
+        }
+      } else {
+        // 接收图片文件上传
+        if (!part.filename) {
+          continue;
+        }
+        let target;
+        if (part.fieldname === "image") {
 
-    if (result.length != 0) {
+          //判断图片类型
+          let type = part.mimeType.replace('image/', '');
+          if (type === 'jpeg') { type = 'jpg' }
 
-      res.msg = '获取项目信息成功'
-      res.data.course_id = result[0].course_id;
-      res.data.course_name = result[0].course_name;
-      res.data.project_id = result[0].project_id;
-      res.data.project_name = result[0].project_name;
-      res.data.step_amount = result[0].step_amount;
-      res.data.steps = result[0].all_steps.split(';');
-      //处理md字符串
-      let md_array = result[0].document.split(/(?=[\n]##[\s])/g)
-      let title = md_array.shift() + '\n';
-      let steps_md_array = [];
-      for (let i = 0; i < md_array.length; i++) {
-        steps_md_array.push(md_array[i].replace('\n', '') + '\n');
-      };
-      res.steps_md_array = steps_md_array;
+          let url = '/public/images/course/' + id + '.' + type;
+          insertInfo.image_url = url;
+          target = path.join(this.config.baseDir, 'app', url);
+          
+          
+        }
 
-      //转换成html
-      let html_str = marked(result[0].document)
-      let steps = html_str.split(/(?=<h2)/g);
-      steps.shift();
-      res.data.steps_html = steps;
-
+        const writeStream = fs.createWriteStream(target);
+        await pump(part, writeStream);
+      }
+    }
+    //插入数据库信息
+    console.log(insertInfo)
+    let result = await this.ctx.service.course.insert(id, insertInfo);
+    if (result !== null) {
+      res.msg = '新增章节成功';
+      res.course_id = id;
     } else {
-      res.msg = '获取项目信息失败';
+      res.msg = '新增章节失败',
+        this.ctx.status = 400;
+    }
+
+    this.ctx.body = res
+  }
+
+  // put 修改课程
+  async update() {
+    console.log(this.ctx.params)
+    var res = {}
+    var id = parseInt(this.ctx.params.id);
+
+    //接收文件的形式接收参数
+    const parts = this.ctx.multipart();
+    let part;
+    var updateInfo = {};
+
+    while ((part = await parts()) != null) {
+      if (part.length) {
+        // arrays are busboy fields
+        if (part[0] === 'course_name') {
+          updateInfo.course_name = part[1];
+        }
+        if (part[0] === 'description') {
+          updateInfo.course_description = part[1]
+        }
+        if (part[0] === 'tag') {
+          updateInfo.tag = part[1]
+        }
+      } else {
+        // 接收图片文件上传
+        if (!part.filename) {
+          continue;
+        }
+        if (part.fieldname == "image") {
+
+          //判断图片类型
+          let type = part.mimeType.replace('image/', '');
+          if (type === 'jpeg') { type = 'jpg' }
+          console.log(type)
+          let url = '/public/images/course/' + id + '.' + type;
+          updateInfo.image_url = url;
+          let target = path.join(this.config.baseDir, 'app', url);
+          const writeStream = fs.createWriteStream(target);
+          await pump(part, writeStream);
+        }
+      }
+    }
+    //更新数据库信息
+    console.log(updateInfo)
+    let result = await this.ctx.service.course.update(id, updateInfo);
+    if (result !== null) {
+      res.msg = '修改章节信息成功'
+    } else {
+      res.msg = '修改章节信息失败',
+        this.ctx.status = 400;
+    }
+
+    this.ctx.body = res
+
+  }
+
+  //删除章节
+  async destroy() {
+    var res = {};
+
+    var id = parseInt(this.ctx.params.id);
+    console.log(id)
+    let result1 = await this.app.mysql.delete('course', {
+      course_id: id
+
+    })
+    if (result1.affectedRows === 1) {
+      res.msg = '删除章节成功';
+    } else {
+      res.msg = '删除章节失败';
       this.ctx.status = 400;
     }
     this.ctx.body = res;
   }
+
   //获取学生可见的所有标签
   async getTag() {
 

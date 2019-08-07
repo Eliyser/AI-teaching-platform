@@ -142,7 +142,7 @@ class AdminController extends Controller {
 
     if (result.length === 0) {
       this.ctx.body = {
-        msg: '获取信息失败'
+        msg: '获取标签信息失败'
       }
       this.ctx.status = 400
     } else {
@@ -155,7 +155,7 @@ class AdminController extends Controller {
       let set = [...new Set(array)];
 
       this.ctx.body = {
-        msg: '获取信息成功',
+        msg: '获取标签信息成功',
         data: set
       };
     }

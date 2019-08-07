@@ -22,16 +22,18 @@ module.exports = app => {
   //获取用户信息
   router.get('/api/v1/userMsg', checkToken, controller.user.userMsg);
 
-  //获取该学生可见的所有章节
-  router.get('/api/v1/course/all_courses', checkToken, controller.course.allCourse);
-  //获取分类的章节
-  router.get('/api/v1/course', controller.course.courseByTag);
-  //获取指定的章节所有项目
-  router.get('/api/v1/course/allProject', controller.course.allProject);
-  //获取指定的章节具体项目
-  router.post('/api/v1/course/project', controller.course.project);
+  //restful风格，对course的增删查改
+  router.resources('course', '/api/v1/course', checkToken, controller.course)
   //获取该学生可见的所有标签
-  router.get('/api/v1/course/tag', checkToken,controller.course.getTag)
+  router.get('/api/v1/courseTag', checkToken, controller.course.getTag)
+  
+  //对项目的增删查改
+  // router.resources('project','/api/v1/project', controller.project);
+  router.get('/api/v1/project',  controller.project.index);
+  router.post('/api/v1/project',  controller.project.create);
+  router.put('/api/v1/project',  controller.project.update);
+  router.delete('/api/v1/project',  controller.project.delete);
+
 
   //记录学生学习进度
   router.post('/api/v1/record/progress', checkToken, controller.record.learning_progress);
@@ -51,7 +53,7 @@ module.exports = app => {
   //获取所有课程
   router.get('/api/v1/admin/course/all_courses', controller.admin.allCourse);
   //获取该学生可见的所有标签
-  router.get('/api/v1/admin/course/tag', controller.admin.getTag)
+  router.get('/api/v1/admin/courseTag', controller.admin.getTag)
 
   //获取学生选课情况和其它个人信息
   router.get('/api/v1/admin/stuId', controller.admin.getBeginId);

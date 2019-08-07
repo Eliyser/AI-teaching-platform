@@ -6,13 +6,11 @@ var marked = require("marked");
 class HomeController extends Controller {
   async index() {
     const { ctx } = this;
-    // ctx.body = 'hi, egg';
     await ctx.render('index');
   }
 
   async admin() {
     const { ctx } = this;
-    // ctx.body = 'hi, egg';
     await ctx.render('index_admin');
   }
   async test() {
@@ -31,7 +29,13 @@ class HomeController extends Controller {
     for(let i =0;i<title_array.length;i++) {
       i === title_array.length-1 ? title_str = title_str + title_array[i].replace('\n## ','').replace('\r','')  : title_str = title_str + title_array[i].replace('\n## ','').replace('\r','') + ';'
     }
-   
+    const r = await this.ctx.app.mysql.insert('project',{
+      project_name :  'Python编程界面入门',
+      project_description : '',
+      step_amount : title_array.length,
+      document : str,
+      all_steps: title_str
+    })
     
     //更新
     // const row = {
@@ -61,11 +65,7 @@ class HomeController extends Controller {
     
     
 
-    this.ctx.body = {
-      "title": title_array,
-      "title_str": title_str
-      
-    };
+    this.ctx.body = r;
 
     // let html_str = marked(result.document);
 
