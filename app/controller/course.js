@@ -140,6 +140,8 @@ class CourseController extends Controller {
         steps_md_array.push(md_array[i].replace('\n', '') + '\n');
       };
       res.steps_md_array = steps_md_array;
+
+      //转换成html
       let html_str = marked(result[0].document)
       let steps = html_str.split(/(?=<h2)/g);
       steps.shift();
@@ -151,35 +153,50 @@ class CourseController extends Controller {
     }
     this.ctx.body = res;
   }
-  //获取所有标签
+  //获取学生可见的所有标签
   async getTag() {
 
-    let result = await this.app.mysql.select('course', {
-      columns: ['tag']
-    });
-
-    if (result.length === 0) {
-      this.ctx.body = {
-        msg: '获取信息失败'
-      }
-      this.ctx.status = 400
+    var res = {};
+    let stuId = this.ctx.state.user;
+    let result0 = await this.app.mysql.get('user', {
+      user_id: stuId
+    })
+    if (result0.length == 0) {
+      res.msg = '获取标签信息失败';
+      this.ctx.status = 400;
     } else {
-      let array = [];
-      await result.forEach(element => {
-        let str = element.tag.split('&');
-        array = array.concat(str);
+      let strArrray = result0.visable_course.split(',')
+      let courseArray = [];
+      strArrray.forEach(function (data) {
+        courseArray.push(parseInt(data))
       });
+      const result = await this.app.mysql.select('course', {
+        where: { course_id: courseArray },
+        columns: ['tag']
+      });
+      if (result.length === 0) {
+        this.ctx.body = {
+          msg: '获取标签信息失败'
+        }
+        this.ctx.status = 400
+      } else {
+        let array = [];
+        await result.forEach(element => {
+          let str = element.tag.split('&');
+          array = array.concat(str);
+        });
 
-      let set = [...new Set(array)];
-
-      this.ctx.body = {
-        msg: '获取信息成功',
-        data: set
-      };
+        let set = [...new Set(array)];
+        res.msg = '获取标签信息成功';
+        res.data = set;
+      }
     }
 
+    this.ctx.body = res;
 
   }
+
+
 }
 
 module.exports = CourseController;

@@ -133,7 +133,33 @@ class AdminController extends Controller {
     this.ctx.body = res;
 
   }
+  //获取所有标签
+  async getTag() {
 
+    let result = await this.app.mysql.select('course', {
+      columns: ['tag']
+    });
+
+    if (result.length === 0) {
+      this.ctx.body = {
+        msg: '获取信息失败'
+      }
+      this.ctx.status = 400
+    } else {
+      let array = [];
+      await result.forEach(element => {
+        let str = element.tag.split('&');
+        array = array.concat(str);
+      });
+
+      let set = [...new Set(array)];
+
+      this.ctx.body = {
+        msg: '获取信息成功',
+        data: set
+      };
+    }
+  }
 }
 
 module.exports = AdminController;

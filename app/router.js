@@ -8,7 +8,7 @@ module.exports = app => {
 
 
   router.get('/', controller.home.index);
-  router.get('/admin',controller.home.admin)
+  router.get('/admin', controller.home.admin)
   //检查登录情况的中间件
   const checkToken = app.middleware.checkToken({
     secret: "xiaoAqianduanzu"
@@ -20,9 +20,9 @@ module.exports = app => {
   //验证用户登录状态
   router.get('/api/v1/verifyUser', controller.user.vertify);
   //获取用户信息
-  router.get('/api/v1/userMsg',  checkToken, controller.user.userMsg);
+  router.get('/api/v1/userMsg', checkToken, controller.user.userMsg);
 
-  //获取所有章节
+  //获取该学生可见的所有章节
   router.get('/api/v1/course/all_courses', checkToken, controller.course.allCourse);
   //获取分类的章节
   router.get('/api/v1/course', controller.course.courseByTag);
@@ -30,8 +30,8 @@ module.exports = app => {
   router.get('/api/v1/course/allProject', controller.course.allProject);
   //获取指定的章节具体项目
   router.post('/api/v1/course/project', controller.course.project);
-  //获取所有标签
-  router.get('/api/v1/course/tag',controller.course.getTag)
+  //获取该学生可见的所有标签
+  router.get('/api/v1/course/tag', checkToken,controller.course.getTag)
 
   //记录学生学习进度
   router.post('/api/v1/record/progress', checkToken, controller.record.learning_progress);
@@ -48,15 +48,20 @@ module.exports = app => {
   router.post('/api/v1/admin/login', controller.admin.login)
   //验证管理员登录状态
   router.get('/api/v1/admin/verifyAdmin', controller.admin.vertify);
+  //获取所有课程
   router.get('/api/v1/admin/course/all_courses', controller.admin.allCourse);
+  //获取该学生可见的所有标签
+  router.get('/api/v1/admin/course/tag', controller.admin.getTag)
+
+  //获取学生选课情况和其它个人信息
   router.get('/api/v1/admin/stuId', controller.admin.getBeginId);
+  //resful风格对学生信息的增删查改
   router.resources('stuInfo', '/api/v1/admin/stuInfo', controller.stuInfo)
-  
   //上传图片获取图片路径
-  router.post('/api/v1/admin/image/upload',controller.image.upload);
-  
-  
-  
+  router.post('/api/v1/admin/image/upload', controller.image.upload);
+
+
+
   //测试
   router.get('/api/v1/test', controller.home.test);
 

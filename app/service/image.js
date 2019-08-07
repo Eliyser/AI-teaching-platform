@@ -22,7 +22,7 @@ class ImageService extends Service {
         if (result2.affectedRows === 1) {
             return {
                 "imageName": imageName,
-                "url": '47.96.95.75:7001' + url
+                "url": 'http://47.96.95.75:7001' + url
             }
         }
         return null;
