@@ -70,8 +70,14 @@ class ProjectController extends Controller {
                 },
                 columns: ['project_id'],
                 orders: [['project_id', 'desc']]
-            })
-            let project_id = parseInt(result0[0].project_id) + 1;
+            });
+            let project_id;
+            if(result0.length===0) {
+                project_id = 1
+            } else {
+                project_id = parseInt(result0[0].project_id) + 1;
+            }
+            
 
             let md_str = reqMsg.markdown;
             //获取二级标题即步骤标题，生成步骤字符串存入

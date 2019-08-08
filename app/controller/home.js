@@ -14,29 +14,42 @@ class HomeController extends Controller {
     await ctx.render('index_admin');
   }
   async test() {
-    
+
     // // console.log(str.length)
     // let html_str = marked(str)
+    let result0 = await this.app.mysql.select('project', {
+      where: {
+        course_id: 8
+      },
+      columns: ['project_id'],
+      orders: [['project_id', 'desc']]
+    });
+    if(result0.length===0) {
+      console.log(1)
+  } else {
+      
+  }
+  
+    
 
-    
-    let path = 'C:/Users/11023/Desktop/AI教学平台/openCV/opencv第一课.md';
-    let res = fs.readFileSync(path);
-    let str = res.toString();
-    console.log(str.length);
-    //获取二级标题即步骤标题，生成步骤字符串存入
-    let title_array = str.match(/\n(##\s)[^\n]*?\r/g);
-    let title_str = '';
-    for(let i =0;i<title_array.length;i++) {
-      i === title_array.length-1 ? title_str = title_str + title_array[i].replace('\n## ','').replace('\r','')  : title_str = title_str + title_array[i].replace('\n## ','').replace('\r','') + ';'
-    }
-    const r = await this.ctx.app.mysql.insert('project',{
-      project_name :  'Python编程界面入门',
-      project_description : '',
-      step_amount : title_array.length,
-      document : str,
-      all_steps: title_str
-    })
-    
+    // let path = 'C:/Users/11023/Desktop/AI教学平台/openCV/opencv第一课.md';
+    // let res = fs.readFileSync(path);
+    // let str = res.toString();
+    // console.log(str.length);
+    // //获取二级标题即步骤标题，生成步骤字符串存入
+    // let title_array = str.match(/\n(##\s)[^\n]*?\r/g);
+    // let title_str = '';
+    // for(let i =0;i<title_array.length;i++) {
+    //   i === title_array.length-1 ? title_str = title_str + title_array[i].replace('\n## ','').replace('\r','')  : title_str = title_str + title_array[i].replace('\n## ','').replace('\r','') + ';'
+    // }
+    // const r = await this.ctx.app.mysql.insert('project',{
+    //   project_name :  'Python编程界面入门',
+    //   project_description : '',
+    //   step_amount : title_array.length,
+    //   document : str,
+    //   all_steps: title_str
+    // })
+
     //更新
     // const row = {
     //   all_steps: title_str
@@ -47,7 +60,7 @@ class HomeController extends Controller {
     //   }
     // }
     // const result0 = await this.app.mysql.update('project', row, options)
-    
+
     // console.log(result0.affectedRows)
 
     // const result = await this.app.mysql.get('project', {
@@ -60,12 +73,12 @@ class HomeController extends Controller {
     // for(let i=0;i<md_array.length;i++){
     //   step_md_array.push(md_array[i].replace('\n','')+ '\n');
     // };
- 
-    // let s = md_str.split(/^(##)(.*)/g);
-    
-    
 
-    this.ctx.body = r;
+    // let s = md_str.split(/^(##)(.*)/g);
+
+
+
+    this.ctx.body = result0;
 
     // let html_str = marked(result.document);
 
