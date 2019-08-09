@@ -39,6 +39,7 @@ class CourseController extends Controller {
         }
       } else {
         res.msg = '获取项目信息成功，该课程目前暂无项目';
+        res.data = {};
       }
     } catch (error) {
       res.msg = '获取项目信息失败';
