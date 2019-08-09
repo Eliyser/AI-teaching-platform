@@ -15,31 +15,36 @@ class CourseController extends Controller {
     var res = {};
     res.data = {};
     const c_id = parseInt(this.ctx.params.id);
-    const result = await this.app.mysql.select('specific_project', {
-      where: { course_id: c_id }
-    })
-    if (result.length != 0) {
-      res.msg = '获取项目信息成功';
-      res.data.course_id = c_id;
-      res.data.header = {
-        'title': result[0].course_name,
-        'introduction': result[0].course_description
+    try {
+      const result = await this.app.mysql.select('specific_project', {
+        where: { course_id: c_id }
+      })
+      if (result.length != 0) {
+        res.msg = '获取项目信息成功';
+        res.data.course_id = c_id;
+        res.data.header = {
+          'title': result[0].course_name,
+          'introduction': result[0].course_description
+        }
+        res.data.body = {
+          'title': '章节内容',
+          'project': []
+        };
+        for (let i = 0; i < result.length; i++) {
+          res.data.body.project.push({
+            'project_id': result[i].project_id,
+            'title': result[i].project_name,
+            'content': result[i].project_description
+          })
+        }
+      } else {
+        res.msg = '获取项目信息成功，该课程目前暂无项目';
       }
-      res.data.body = {
-        'title': '章节内容',
-        'project': []
-      };
-      for (let i = 0; i < result.length; i++) {
-        res.data.body.project.push({
-          'project_id': result[i].project_id,
-          'title': result[i].project_name,
-          'content': result[i].project_description
-        })
-      }
-    } else {
+    } catch (error) {
       res.msg = '获取项目信息失败';
       this.ctx.status = 400;
     }
+    
     this.ctx.body = res;
 
   }
