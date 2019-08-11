@@ -11,8 +11,14 @@ class StuInfoService extends Service {
             //把密码进行md5加密,不加密了
             // req.info[i].password = this.ctx.helper.encrypt(req.info[i].password);
             //如果没有选择课程
-            req.info[i].visable_course_id = req.info[i].visable_course_id === undefined ? null : req.info[i].visable_course_id.toString();
-            console.log(req.info[i].visable_course_id)
+            req.info[i].visable_course_id = (req.info[i].visable_course_id === undefined ||req.info[i].visable_course_id.length === 0)? null : req.info[i].visable_course_id.toString();
+            console.log(req.info[i].visable_course_id);
+            // if(req.info[i].visable_course_id === undefined || req.info[i].visable_course_id.length === 0) {
+                
+            //     req.info[i].visable_course_id = null;
+            // } else {
+            //     req.info[i].visable_course_id = req.info[i].visable_course_id.toString();
+            // }
             let result = await this.app.mysql.insert('user', {
                 user_id: req.info[i].stuId,
                 user_name: req.info[i].stuName,
