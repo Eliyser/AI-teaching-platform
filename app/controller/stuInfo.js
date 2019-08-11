@@ -91,9 +91,10 @@ class StuInfoController extends Controller {
 
         } catch (error) {
             console.log(error)
-            res.msg = '参数不合法'
             this.ctx.status = 400;
-            return this.ctx.body = res;
+            return this.ctx.body = {
+                msg = '参数不合法'
+            };
 
         }
         let res = await this.ctx.service.stuInfo.update(req.info);
