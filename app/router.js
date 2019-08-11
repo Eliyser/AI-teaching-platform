@@ -17,6 +17,8 @@ module.exports = app => {
 
   //用户登录
   router.post('/api/v1/login', checkToken, controller.user.login);
+  //用户登出
+  router.get('/api/v1/logout',controller.user.logout)
   //验证用户登录状态
   router.get('/api/v1/verifyUser', controller.user.vertify);
   //获取用户信息

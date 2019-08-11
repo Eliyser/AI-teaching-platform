@@ -19,39 +19,41 @@ class UserController extends Controller {
     var loginMsg = ctx.request.body;
     try {
       await ctx.validate(rule, loginMsg);//校验数据
-      //把密码进行md5加密
-      loginMsg.password = ctx.helper.encrypt(loginMsg.password);
-      var result = await ctx.service.user.login(loginMsg);
-      var res = {};
-      switch (result.code) {
-        case -2:
-          res.msg = '用户不存在';
-          ctx.status = 400
-          break;
-        case -1:
-          res.msg = '用户密码不正确';
-          ctx.status = 400
-          break;
-        case 1:
-          res.msg = '登录成功';
-          res.data = result.userInfo;
-          // 把token加入cookie
-          ctx.cookies.set('egg_token', result.token, {
-            maxAge: 24 * 3600 * 1000,
-            httpOnly: true,
-            // overwrite:true,
-            signed: true,
-          })
-          break;
-      }
 
-      ctx.body = res;
+
     }
     catch (e) {
       console.log(e);
       ctx.status = 400;
-      ctx.body = '请求参数格式不合法'
+      return ctx.body = '请求参数格式不合法'
     }
+    var result = await ctx.service.user.login(loginMsg);
+    // //把密码进行md5加密
+    // loginMsg.password = ctx.helper.encrypt(loginMsg.password);
+    var res = {};
+    switch (result.code) {
+      case -2:
+        res.msg = '用户不存在';
+        ctx.status = 400
+        break;
+      case -1:
+        res.msg = '用户密码不正确';
+        ctx.status = 400
+        break;
+      case 1:
+        res.msg = '登录成功';
+        res.data = result.userInfo;
+        // 把token加入cookie
+        ctx.cookies.set('egg_token', result.token, {
+          maxAge: 24 * 3600 * 1000,
+          httpOnly: true,
+          // overwrite:true,
+          signed: true,
+        })
+        break;
+    }
+    ctx.body = res;
+
   }
   //验证用户是否登录
   async vertify() {
@@ -59,22 +61,32 @@ class UserController extends Controller {
       signed: true,
     })
     if (token === undefined) {
-      console.log('没有token')
-      this.ctx.throw(401, '未授权，请登录');
+      this.ctx.status = 401;
+      return this.ctx.body = {
+        msg: '未授权，请登录'
+      }
+
     } else {
       let decode;
       try {
         decode = JWT.verify(token, "xiaoAqianduanzu");
         if (!decode || !decode.user_id) {
+          this.ctx.status = 401;
+          return this.ctx.body = {
+            msg: '未授权，请登录'
+          }
 
-          ctx.throw(401, '未授权，请登录');
         }
         if (Date.now() / 1000 - decode.exp > 0) {
-          ctx.throw(402, '登录已过期，请重新登录');
+          this.ctx.status = 402;
+          return this.ctx.body = {
+            msg: '登录已过期，请重新登录'
+          }
         }
         console.log(decode.user_id);
         let result = await this.ctx.service.user.vertifyUser(decode.user_id)
         this.ctx.body = {
+          msg: '用户已登录',
           user_id: decode.user_id,
           user_name: result
         };
@@ -99,12 +111,12 @@ class UserController extends Controller {
   //获取用户信息接口
   async userMsg() {
 
-    let result = await this.app.mysql.select('user',{
-      
-      where:{user_id: this.ctx.state.user},
-      columns: ['user_id','user_name','school','first_login_time']
+    let result = await this.app.mysql.select('user', {
+
+      where: { user_id: this.ctx.state.user },
+      columns: ['user_id', 'user_name', 'school', 'first_login_time']
     })
-    if(result.length == 0) {
+    if (result.length == 0) {
       this.ctx.body = {
         msg: '用户信息获取失败'
       }
@@ -113,15 +125,15 @@ class UserController extends Controller {
       this.ctx.body = {
         msg: '用户信息获取成功',
         data: [{
-            'stuId': result[0].user_id,
-            'stuName':result[0].user_name,
-            'stuSchool':result[0].school,
-            'stuAddtime':result[0].first_login_time,
+          'stuId': result[0].user_id,
+          'stuName': result[0].user_name,
+          'stuSchool': result[0].school,
+          'stuAddtime': result[0].first_login_time,
         }]
       }
     }
 
-  } 
+  }
 
 }
 module.exports = UserController;

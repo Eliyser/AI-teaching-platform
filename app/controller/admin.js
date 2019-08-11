@@ -18,7 +18,7 @@ class AdminController extends Controller {
     try {
       await ctx.validate(rule, loginMsg);//校验数据
       //把密码进行md5加密
-      loginMsg.password = ctx.helper.encrypt(loginMsg.password);
+      // loginMsg.password = ctx.helper.encrypt(loginMsg.password);
       var result = await ctx.service.admin.login(loginMsg);
       var res = {};
       switch (result.code) {

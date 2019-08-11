@@ -12,134 +12,40 @@ class CourseController extends Controller {
   // 获取指定章节信息下的所有项目信息
   async show() {
 
-    var res = {};
-    res.data = {};
+    
     const c_id = parseInt(this.ctx.params.id);
-    try {
-      const result = await this.app.mysql.select('specific_project', {
-        where: { course_id: c_id }
-      })
-      if (result.length != 0) {
-        res.msg = '获取项目信息成功';
-        res.data.course_id = c_id;
-        res.data.header = {
-          'title': result[0].course_name,
-          'introduction': result[0].course_description
-        }
-        res.data.body = {
-          'title': '章节内容',
-          'project': []
-        };
-        for (let i = 0; i < result.length; i++) {
-          res.data.body.project.push({
-            'project_id': result[i].project_id,
-            'title': result[i].project_name,
-            'content': result[i].project_description
-          })
-        }
-      } else {
-        res.msg = '获取项目信息成功，该课程目前暂无项目';
-        res.data = {};
-      }
-    } catch (error) {
-      res.msg = '获取项目信息失败';
-      this.ctx.status = 400;
-    }
+    //校验数据
 
-    this.ctx.body = res;
+    let result = await this.ctx.service.course.show(c_id);
+    this.ctx.body = result;
 
   }
+
   // get query传值 如果带参数则判段是否有标签，没有带参数则显示全部
   // 否则根据标签获取分类的章节
   async index() {
-    var res = {};
-    res.data = [];
+    
     //获取学生信息
     let stuId = this.ctx.state.user;
     console.log(this.ctx.query)
-    //校验请求
+    //校验请求，分情况处理
 
     if (Object.keys(this.ctx.query).length === 0) {
       //无参数，显示全部
-
-      let result0 = await this.app.mysql.get('user', {
-        user_id: stuId
-      })
-      if (result0.length !== 0) {
-        let strArray = result0.visable_course === null ? [] : result0.visable_course.split(',');
-        let courseArray = [];
-
-        strArray.forEach(function (data) {
-          courseArray.push(parseInt(data))
-        });
-        if (courseArray.length === 0) {
-          res.msg = '该学生没有任何可见课程';
-          return this.ctx.body = res;
-        }
-
-        const result = await this.app.mysql.select('course', {
-          where: { course_id: courseArray }
-        });
-        for (let i = 0; i < result.length; i++) {
-          let str = result[i].tag;
-          result[i].tag = str.split('&');
-          result[i].active = false;
-        }
-        if (result.length != 0) {
-          result.unshift({
-            "active": true,	//
-            "course_name": "全部",
-            "course_id": 0,
-            "course_description": "",
-            "project_amount": 0,
-            "tag": ["全部"],
-            "image_url": "",
-            "learn_amount": 0
-          })
-
-          res.msg = '获取章节信息成功';
-          res.data = result;
-          return this.ctx.body = res;
-        }
-      }
-      res.msg = '获取章节信息失败';
-      this.ctx.status = 400;
-      return this.ctx.body = res;
+      let result = await this.ctx.service.course.showAll(stuId);
+      return this.ctx.body = result;
 
     }
-    else {
-      const tag = this.ctx.query.tag;
-      if (tag !== undefined) {
-        const result = await this.app.mysql.select('course');
-        var flag = false;
-        for (let i = 0; i < result.length; i++) {
-          let str = result[i].tag.split('&');
-          let isfind = false;
-          await str.forEach(element => {
-            if (element === tag) {
-              isfind = true;
-            }
-          });
-
-          if (isfind === true) {
-            result[i].tag = str;
-            res.data.push(result[i]);
-            flag = true;
-          }
-        }
-        if (result.length != 0 && flag == true) {
-          res.msg = '获取分类信息成功';
-          return this.ctx.body = res;
-        }
-        res.msg = '获取分类信息失败';
-        this.ctx.status = 400;
-        return this.ctx.body = res;
-      }
-      res.msg = '参数不合法';
-      this.ctx.status = 400;
+    else if(this.ctx.query.tag !== undefined){
+      
+      let result = await this.ctx.service.course.showByTag(this.ctx.query.tag);
+      return this.ctx.body = result;
     }
+    res.msg = '参数不合法';
+    this.ctx.status = 400;
     this.ctx.body = res;
   }
+
 
   // post 增加课程
   async create() {
@@ -153,7 +59,7 @@ class CourseController extends Controller {
       columns: ['course_id'],
       orders: [['course_id', 'desc']]
     });
-    var id = parseInt(result0[0].course_id) + 1
+    var id = parseInt(result0[0].course_id) + 1;
     while ((part = await parts()) != null) {
       console.log(part)
       if (part.length) {
@@ -183,25 +89,32 @@ class CourseController extends Controller {
           insertInfo.image_url = url;
           target = path.join(this.config.baseDir, 'app', url);
 
-
         }
 
         const writeStream = fs.createWriteStream(target);
         await pump(part, writeStream);
       }
     }
-    //插入数据库信息
-    console.log(insertInfo)
-    let result = await this.ctx.service.course.insert(id, insertInfo);
-    if (result !== null) {
-      res.msg = '新增章节成功';
-      res.course_id = id;
-    } else {
-      res.msg = '新增章节失败',
-        this.ctx.status = 400;
+    
+    //校验数据
+    const rule = {
+      course_name: { type: 'string', required: true },
+      course_description: { type: 'string', required: true },
+      tag: { type: 'string', required: false },
+      image_url: { type: 'string', required: true }
+    };
+    try {
+      await this.ctx.validate(rule, insertInfo);//校验数据
+    } catch (error) {
+      res.msg = "参数格式不对";
+      this.ctx.status = 400;
+      return this.ctx.body = res
     }
-
-    this.ctx.body = res
+    let result = await this.ctx.service.course.insert(id, insertInfo);
+    res.msg = (result === true) ? '新增章节成功' : '新增章节失败';
+    res.course_id = (result === true) ? id : null;
+    res.test = undefined;
+    this.ctx.body = res;
   }
 
   // put 修改课程
@@ -248,16 +161,23 @@ class CourseController extends Controller {
     }
     //更新数据库信息
     console.log(updateInfo)
-    let result = await this.ctx.service.course.update(id, updateInfo);
-    if (result !== null) {
-      res.msg = '修改章节信息成功'
-    } else {
-      res.msg = '修改章节信息失败',
-        this.ctx.status = 400;
+    //校验数据
+    const rule = {
+      course_name: { type: 'string', required: false },
+      course_description: { type: 'string', required: false },
+      tag: { type: 'string', required: false },
+      image_url: { type: 'string', required: false }
+    };
+    try {
+      await this.ctx.validate(rule, updateInfo);//校验数据
+    } catch (error) {
+      res.msg = "参数格式不对";
+      this.ctx.status = 400;
+      return this.ctx.body = res
     }
-
+    let result = await this.ctx.service.course.update(id, updateInfo);
+    res.msg = (result === true) ? '更新章节成功' : '更新章节失败';
     this.ctx.body = res
-
   }
 
   //删除章节
@@ -265,21 +185,12 @@ class CourseController extends Controller {
     var res = {};
 
     var id = parseInt(this.ctx.params.id);
-    console.log(id)
-    let result1 = await this.app.mysql.delete('course', {
-      course_id: id
-
-    })
-    if (result1.affectedRows === 1) {
-      res.msg = '删除章节成功';
-    } else {
-      res.msg = '删除章节失败';
-      this.ctx.status = 400;
-    }
+    let result = await this.ctx.service.course.destroy(id);
+    res.msg = result === true ? '删除章节成功' : '删除章节失败';
     this.ctx.body = res;
   }
 
-  //获取学生可见的所有标签
+  //获取该学生可见的所有标签，学生页面使用
   async getTag() {
 
     var res = {};
@@ -287,37 +198,46 @@ class CourseController extends Controller {
     let result0 = await this.app.mysql.get('user', {
       user_id: stuId
     })
-    if (result0.length == 0) {
-      res.msg = '获取标签信息失败';
-      this.ctx.status = 400;
-    } else {
+    if (result0.length !== 0) {
+      //学生信息不对
       let strArray = result0.visable_course.split(',')
       let courseArray = [];
       strArray.forEach(function (data) {
         courseArray.push(parseInt(data))
       });
-      const result = await this.app.mysql.select('course', {
-        where: { course_id: courseArray },
-        columns: ['tag']
-      });
-      if (result.length === 0) {
-        this.ctx.body = {
-          msg: '获取标签信息失败'
-        }
-        this.ctx.status = 400
-      } else {
-        let array = [];
-        await result.forEach(element => {
-          let str = element.tag.split('&');
-          array = array.concat(str);
+      let result;
+      try {
+        result = await this.app.mysql.select('course', {
+          where: { course_id: courseArray },
+          columns: ['tag']
         });
-
+      } catch (error) {
+        res.msg = courseArray.length === 0 ? '该学生没有可见的课程，获取失败' : '获取标签信息失败';
+        this.ctx.status = 400;
+        return this.ctx.body = res;
+      }
+      if (result.length !== 0) {
+        
+        let array = [];
+        for (let index = 0; index < result.length; index++) {
+          
+          if(result[index].tag===null || result[index].tag===undefined || result[index].tag==='') {
+            //该课程没有标签
+            continue;
+          }
+          let str = result[index].tag.split('&');
+          array = array.concat(str);
+        }
+      
+        //数组去重
         let set = [...new Set(array)];
         res.msg = '获取标签信息成功';
         res.data = set;
+        return this.ctx.body = res;
       }
     }
-
+    res.msg = '获取标签信息失败';
+    this.ctx.status = 400;
     this.ctx.body = res;
 
   }
