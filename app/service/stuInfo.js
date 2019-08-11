@@ -53,8 +53,8 @@ class StuInfoService extends Service {
 
             let row = {};
             if (info[i].visable_course_id) {
-                row.visable_course = info[i].visable_course_id.toString()
-            }
+                row.visable_course = info[i].visable_course_id.length===0 ? null:info[i].visable_course_id.toString()
+            } 
             if (info[i].stuName) {
                 row.user_name = info[i].stuName
             }
