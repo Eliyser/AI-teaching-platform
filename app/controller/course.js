@@ -45,7 +45,7 @@ class CourseController extends Controller {
       res.msg = '获取项目信息失败';
       this.ctx.status = 400;
     }
-    
+
     this.ctx.body = res;
 
   }
@@ -54,72 +54,62 @@ class CourseController extends Controller {
   async index() {
     var res = {};
     res.data = [];
+    //获取学生信息
     let stuId = this.ctx.state.user;
     console.log(this.ctx.query)
+    //校验请求
+
     if (Object.keys(this.ctx.query).length === 0) {
       //无参数，显示全部
+
       let result0 = await this.app.mysql.get('user', {
         user_id: stuId
       })
-      if (result0.length == 0) {
-        res.msg = '获取章节信息失败';
-        this.ctx.status = 400;
-      } else {
-        
-        let strArray = result0.visable_course === null ? []:result0.visable_course.split(',');
+      if (result0.length !== 0) {
+        let strArray = result0.visable_course === null ? [] : result0.visable_course.split(',');
         let courseArray = [];
-        
+
         strArray.forEach(function (data) {
           courseArray.push(parseInt(data))
         });
-        // if (condition) {
-          
-        // } else {
-          
-        // }
-
-        try {
-          const result = await this.app.mysql.select('course', {
-            where: { course_id: courseArray }
-          });
-          for (let i = 0; i < result.length; i++) {
-            let str = result[i].tag;
-            result[i].tag = str.split('&');
-            result[i].active = false;
-          }
-          if (result.length != 0) {
-            result.unshift({
-              "active": true,	//
-              "course_name": "全部",
-              "course_id": 0,
-              "course_description": "",
-              "project_amount": 0,
-              "tag": ["全部"],
-              "image_url": "",
-              "learn_amount": 0
-            })
-  
-            res.msg = '获取章节信息成功';
-            res.data = result;
-          } else {
-            // this.ctx.throw('400','获取章节信息失败');
-            res.msg = '获取章节信息失败';
-            this.ctx.status = 400;
-          }
-        } catch (error) {
-          res.msg = '获取章节信息失败';
-            this.ctx.status = 400;
+        if (courseArray.length === 0) {
+          res.msg = '该学生没有任何可见课程';
+          return this.ctx.body = res;
         }
-        
-        
+
+        const result = await this.app.mysql.select('course', {
+          where: { course_id: courseArray }
+        });
+        for (let i = 0; i < result.length; i++) {
+          let str = result[i].tag;
+          result[i].tag = str.split('&');
+          result[i].active = false;
+        }
+        if (result.length != 0) {
+          result.unshift({
+            "active": true,	//
+            "course_name": "全部",
+            "course_id": 0,
+            "course_description": "",
+            "project_amount": 0,
+            "tag": ["全部"],
+            "image_url": "",
+            "learn_amount": 0
+          })
+
+          res.msg = '获取章节信息成功';
+          res.data = result;
+          return this.ctx.body = res;
+        }
       }
+      res.msg = '获取章节信息失败';
+      this.ctx.status = 400;
+      return this.ctx.body = res;
+
     }
     else {
       const tag = this.ctx.query.tag;
-      if (tag == undefined) {
-        res.msg = '参数不合法';
-        this.ctx.status = 400;
-      } else {
+      if (tag !== undefined) {
         const result = await this.app.mysql.select('course');
         var flag = false;
         for (let i = 0; i < result.length; i++) {
@@ -139,11 +129,14 @@ class CourseController extends Controller {
         }
         if (result.length != 0 && flag == true) {
           res.msg = '获取分类信息成功';
-        } else {
-          res.msg = '获取分类信息失败';
-          this.ctx.status = 400;
+          return this.ctx.body = res;
         }
+        res.msg = '获取分类信息失败';
+        this.ctx.status = 400;
+        return this.ctx.body = res;
       }
+      res.msg = '参数不合法';
+      this.ctx.status = 400;
     }
     this.ctx.body = res;
   }
@@ -189,8 +182,8 @@ class CourseController extends Controller {
           let url = '/public/images/course/' + id + '.' + type;
           insertInfo.image_url = url;
           target = path.join(this.config.baseDir, 'app', url);
-          
-          
+
+
         }
 
         const writeStream = fs.createWriteStream(target);
