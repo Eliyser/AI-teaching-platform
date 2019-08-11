@@ -77,7 +77,6 @@ class ProjectController extends Controller {
                 project_id = parseInt(result0[0].project_id) + 1;
             }
             
-
             let md_str = reqMsg.markdown;
             //获取二级标题即步骤标题，生成步骤字符串存入
             // let steps_array = md_str.match(/(?<!#)(##\s)[^\n]*?\r/g);

@@ -72,11 +72,11 @@ class CourseController extends Controller {
         strArray.forEach(function (data) {
           courseArray.push(parseInt(data))
         });
-        if (condition) {
+        // if (condition) {
           
-        } else {
+        // } else {
           
-        }
+        // }
 
         try {
           const result = await this.app.mysql.select('course', {
