@@ -17,21 +17,32 @@ class HomeController extends Controller {
 
     // // console.log(str.length)
     // let html_str = marked(str)
-    let result0 = await this.app.mysql.select('project', {
-      where: {
-        course_id: 8
-      },
-      columns: ['project_id'],
-      orders: [['project_id', 'desc']]
-    });
-    if(result0.length===0) {
-      console.log(1)
-  } else {
+  //   let result0 = await this.app.mysql.select('project', {
+  //     where: {
+  //       course_id: 8
+  //     },
+  //     columns: ['project_id'],
+  //     orders: [['project_id', 'desc']]
+  //   });
+  //   if(result0.length===0) {
+  //     console.log(1)
+  // } else {
       
-  }
-  
-    
+  // };
+  // let strArray = [];
+  // let courseArray = []
+  // strArray.forEach(function (data) {
+  //   courseArray.push(parseInt(data))
+  // });
+  // const result = await this.app.mysql.select('course', {
+  //   where: { course_id: courseArray }
+  // });
+  this.ctx.body = 'kkdhfsdhfkdnfvkehr';
+  this.ctx.status = 400;
 
+
+  this.ctx.body = '哈哈哈哈哈哈'
+  this.ctx.status = 200
     // let path = 'C:/Users/11023/Desktop/AI教学平台/openCV/opencv第一课.md';
     // let res = fs.readFileSync(path);
     // let str = res.toString();
@@ -78,7 +89,7 @@ class HomeController extends Controller {
 
 
 
-    this.ctx.body = result0;
+    
 
     // let html_str = marked(result.document);
 

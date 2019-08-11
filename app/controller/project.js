@@ -28,14 +28,12 @@ class ProjectController extends Controller {
             res.data.step_amount = result[0].step_amount;
             res.data.steps = result[0].all_steps.split(';');
             //处理md字符串
-            let md_array = result[0].document.split(/(?=[\n]##[\s])/g)
-            let title = md_array.shift() + '\n';
-            let steps_md_array = [];
-            for (let i = 0; i < md_array.length; i++) {
-                steps_md_array.push(md_array[i].replace('\n', '') + '\n');
-            };
-            res.steps_md_array = steps_md_array;
-
+            let md_array = result[0].document.split(/(?=(?<!#)##\s)/g);
+          
+            // let steps_array = result[0].document.match(/(?<!#)##\s/g);
+            let title = md_array.shift();
+            res.steps_md_array = md_array;
+  
             //转换成html
             let html_str = marked(result[0].document)
             let steps = html_str.split(/(?=<h2)/g);
@@ -60,6 +58,7 @@ class ProjectController extends Controller {
             project_name: { type: 'string', required: true },
             description: { type: 'string', required: true },
             markdown: { type: 'string', required: true },
+            steps: { type: 'array', required: true}
         };
         //验证接口数据规则
         try {
@@ -81,10 +80,11 @@ class ProjectController extends Controller {
 
             let md_str = reqMsg.markdown;
             //获取二级标题即步骤标题，生成步骤字符串存入
-            let steps_array = md_str.match(/\n(##\s)[^\n]*?\r/g);
+            // let steps_array = md_str.match(/(?<!#)(##\s)[^\n]*?\r/g);
+            let steps_array = reqMsg.steps;
             let steps_str = '';
             for (let i = 0; i < steps_array.length; i++) {
-                i === steps_array.length - 1 ? steps_str = steps_str + steps_array[i].replace('\n## ', '').replace('\r', '') : steps_str = steps_str + steps_array[i].replace('\n## ', '').replace('\r', '') + ';'
+                i === steps_array.length - 1 ? steps_str = steps_str + steps_array[i]: steps_str = steps_str + steps_array[i] + ';'
             }
 
             let result1 = await this.app.mysql.insert('project', {
