@@ -8,7 +8,7 @@ const  spawn = require('child_process');
 class ShellController extends Controller {
     async open() {
         var exec = spawn.execFile;
-        exec('../public/hello.sh', { encoding: 'utf8' }, function (err, stdout, stderr) {
+        exec('../public/shell/hello.sh', { encoding: 'utf8' }, function (err, stdout, stderr) {
             if (err) {
                 console.log(err);
                 return;
