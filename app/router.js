@@ -72,6 +72,6 @@ module.exports = app => {
 
   //测试
   router.get('/api/v1/test', controller.home.test);
-
+  router.get('/api/v1/testsh', controller.shell.open);
 
 };
