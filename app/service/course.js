@@ -148,9 +148,9 @@ class CourseService extends Service {
     this.ctx.status = 400;
     return false;
 
-
-
   }
+
+  
   async insert(id, insertInfo) {
     if (Object.keys(insertInfo).length === 0) {
       this.ctx.status = 400;
@@ -170,6 +170,8 @@ class CourseService extends Service {
     this.ctx.status = 400;
     return false;
   }
+
+
   async destroy(id) {
     let result1 = await this.app.mysql.delete('course', {
       course_id: id
@@ -181,6 +183,61 @@ class CourseService extends Service {
     this.ctx.status = 400;
     return false;
   }
+
+
+
+  async getTag(stuId) {
+    var res = {}
+    let result0 = await this.app.mysql.get('user', {
+      user_id: stuId
+    })
+    if (result0.length !== 0) {
+      //学生信息正确
+    
+      let strArray = (result0.visable_course ===null || result0.visable_course ==='' || result0.visable_course ===undefined)?[]:result0.visable_course.split(',')
+      let courseArray = [];
+      strArray.forEach(function (data) {
+        courseArray.push(parseInt(data))
+      });
+      let result;
+      try {
+        result = await this.app.mysql.select('course', {
+          where: { course_id: courseArray },
+          columns: ['tag']
+        });
+      } catch (error) {
+        res.msg = courseArray.length === 0 ? '该学生没有可见的课程，获取失败' : '获取标签信息失败';
+        this.ctx.status = 400;
+        return res;
+      }
+      if (result.length !== 0) {
+
+        let array = [];
+        for (let index = 0; index < result.length; index++) {
+
+          if (result[index].tag === null || result[index].tag === undefined || result[index].tag === '') {
+            //该课程没有标签
+            continue;
+          }
+          let str = result[index].tag.split('&');
+          array = array.concat(str);
+        }
+
+        //数组去重
+        let set = [...new Set(array)];
+        res.msg = '获取标签信息成功';
+        res.data = set;
+        return res;
+      }
+    }
+    res.msg = '获取标签信息失败';
+    this.ctx.status = 400;
+    return  res;
+
+  }
+
+
+
 }
 
 module.exports = CourseService;

@@ -14,7 +14,9 @@ module.exports = app => {
     secret: "xiaoAqianduanzu"
   });
 
-
+  const checkAdminToken = app.middleware.checkAdminToken({
+    secret: "xiaoAqianduanzu"
+  });
   //用户登录
   router.post('/api/v1/login', checkToken, controller.user.login);
   //用户登出
@@ -25,9 +27,9 @@ module.exports = app => {
   router.get('/api/v1/userMsg', checkToken, controller.user.userMsg);
 
   //restful风格，对course的增删查改
-  router.resources('course', '/api/v1/course', checkToken, controller.course)
+  router.resources('course', '/api/v1/course' , controller.course)
   //获取该学生可见的所有标签
-  router.get('/api/v1/courseTag', checkToken, controller.course.getTag)
+  router.get('/api/v1/courseTag', controller.course.getTag)
   
   //对项目的增删查改
   // router.resources('project','/api/v1/project', controller.project);
@@ -56,6 +58,8 @@ module.exports = app => {
   router.get('/api/v1/admin/course/all_courses', controller.admin.allCourse);
   //获取该学生可见的所有标签
   router.get('/api/v1/admin/courseTag', controller.admin.getTag)
+  //
+  router.get('/api/v1/admin/course', controller.course.show)
 
   //获取学生选课情况和其它个人信息
   router.get('/api/v1/admin/stuId', controller.admin.getBeginId);

@@ -1,6 +1,7 @@
 'use strict';
 
 const Controller = require('egg').Controller;
+const JWT = require('jsonwebtoken');
 
 var marked = require("marked");
 const fs = require('fs');
@@ -12,7 +13,7 @@ class CourseController extends Controller {
   // 获取指定章节信息下的所有项目信息
   async show() {
 
-    
+
     const c_id = parseInt(this.ctx.params.id);
     //校验数据
 
@@ -24,20 +25,55 @@ class CourseController extends Controller {
   // get query传值 如果带参数则判段是否有标签，没有带参数则显示全部
   // 否则根据标签获取分类的章节
   async index() {
-    
-    //获取学生信息
-    let stuId = this.ctx.state.user;
+
+
     console.log(this.ctx.query)
     //校验请求，分情况处理
 
     if (Object.keys(this.ctx.query).length === 0) {
-      //无参数，显示全部
-      let result = await this.ctx.service.course.showAll(stuId);
-      return this.ctx.body = result;
+      //获取学生信息
+      
+      var token = this.ctx.cookies.get('egg_token', {
+        signed: true,
+      })
+      if (token === undefined) {
+        this.ctx.status = 401;
+        return this.ctx.body = {
+          msg: '未授权，请登录'
+        }
+
+      } else {
+        let decode;
+        try {
+          decode = JWT.verify(token, "xiaoAqianduanzu");
+          if (!decode || !decode.user_id) {
+            this.ctx.status = 401;
+            return this.ctx.body = {
+              msg: '未授权，请登录'
+            }
+
+          }
+          if (Date.now() / 1000 - decode.exp > 0) {
+            this.ctx.status = 402;
+            return this.ctx.body = {
+              msg: '登录已过期，请重新登录'
+            }
+          }
+          console.log();
+          let stuId = parseInt(decode.user_id);
+          //无参数，显示全部
+          let result = await this.ctx.service.course.showAll(stuId);
+          return this.ctx.body = result;
+          
+        } catch (e) {
+          console.log(e);
+        }
+      }
+
 
     }
-    else if(this.ctx.query.tag !== undefined){
-      
+    else if (this.ctx.query.tag !== undefined) {
+
       let result = await this.ctx.service.course.showByTag(this.ctx.query.tag);
       return this.ctx.body = result;
     }
@@ -95,7 +131,7 @@ class CourseController extends Controller {
         await pump(part, writeStream);
       }
     }
-    
+
     //校验数据
     const rule = {
       course_name: { type: 'string', required: true },
@@ -192,54 +228,41 @@ class CourseController extends Controller {
 
   //获取该学生可见的所有标签，学生页面使用
   async getTag() {
-
-    var res = {};
-    let stuId = this.ctx.state.user;
-    let result0 = await this.app.mysql.get('user', {
-      user_id: stuId
+  
+    var token = this.ctx.cookies.get('egg_token', {
+      signed: true,
     })
-    if (result0.length !== 0) {
-      //学生信息不对
-      let strArray = result0.visable_course.split(',')
-      let courseArray = [];
-      strArray.forEach(function (data) {
-        courseArray.push(parseInt(data))
-      });
-      let result;
-      try {
-        result = await this.app.mysql.select('course', {
-          where: { course_id: courseArray },
-          columns: ['tag']
-        });
-      } catch (error) {
-        res.msg = courseArray.length === 0 ? '该学生没有可见的课程，获取失败' : '获取标签信息失败';
-        this.ctx.status = 400;
-        return this.ctx.body = res;
+    if (token === undefined) {
+      this.ctx.status = 401;
+      return this.ctx.body = {
+        msg: '未授权，请登录'
       }
-      if (result.length !== 0) {
-        
-        let array = [];
-        for (let index = 0; index < result.length; index++) {
-          
-          if(result[index].tag===null || result[index].tag===undefined || result[index].tag==='') {
-            //该课程没有标签
-            continue;
+
+    } else {
+      let decode;
+      try {
+        decode = JWT.verify(token, "xiaoAqianduanzu");
+        if (!decode || !decode.user_id) {
+          this.ctx.status = 401;
+          return this.ctx.body = {
+            msg: '未授权，请登录'
           }
-          let str = result[index].tag.split('&');
-          array = array.concat(str);
+
         }
-      
-        //数组去重
-        let set = [...new Set(array)];
-        res.msg = '获取标签信息成功';
-        res.data = set;
-        return this.ctx.body = res;
+        if (Date.now() / 1000 - decode.exp > 0) {
+          this.ctx.status = 402;
+          return this.ctx.body = {
+            msg: '登录已过期，请重新登录'
+          }
+        }
+    
+        let stuId = parseInt(decode.user_id);
+        this.ctx.body = await this.ctx.service.course.getTag(stuId);
+      } catch (e) {
+        console.log(e);
       }
     }
-    res.msg = '获取标签信息失败';
-    this.ctx.status = 400;
-    this.ctx.body = res;
-
+    
   }
 
 

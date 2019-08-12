@@ -6,6 +6,7 @@ class StuInfoService extends Service {
     async create(req) {
         var res = {};
         let flag;
+        let errorId;
         for (let i = 0; i < req.info.length; i++) {
 
             //把密码进行md5加密,不加密了
@@ -13,28 +14,30 @@ class StuInfoService extends Service {
             //如果没有选择课程
             req.info[i].visable_course_id = (req.info[i].visable_course_id === undefined ||req.info[i].visable_course_id.length === 0)? null : req.info[i].visable_course_id.toString();
             console.log(req.info[i].visable_course_id);
-            // if(req.info[i].visable_course_id === undefined || req.info[i].visable_course_id.length === 0) {
-                
-            //     req.info[i].visable_course_id = null;
-            // } else {
-            //     req.info[i].visable_course_id = req.info[i].visable_course_id.toString();
-            // }
-            let result = await this.app.mysql.insert('user', {
-                user_id: req.info[i].stuId,
-                user_name: req.info[i].stuName,
-                password: req.info[i].password,
-                school: req.info[i].stuSchool,
-                visable_course: req.info[i].visable_course_id
-            })
+            let result;
+            try {
+                result = await this.app.mysql.insert('user', {
+                    user_id: req.info[i].stuId,
+                    user_name: req.info[i].stuName,
+                    password: req.info[i].password,
+                    school: req.info[i].stuSchool,
+                    visable_course: req.info[i].visable_course_id
+                })
+            } catch (error) {
+                errorId = req.info[i].stuId;
+                flag = false;
+                break;
+            }
+            
             if (result.affectedRows === 1) {
                 continue;
             }
+            errorId = req.info[i].stuId;
             flag = false;
             break;
-
         }
         if (flag === false) {
-            res.msg = '上报数据失败'
+            res.msg = '上报数据失败'+ ' stuId为 '+ errorId+' 的数据内容有错，请检查'
             this.ctx.status = 400;
             return res;
         }

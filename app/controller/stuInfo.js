@@ -28,7 +28,7 @@ class StuInfoController extends Controller {
                 })
                 continue;
             }
-            let visableStrArray = result[i].visable_course.split(',')
+            let visableStrArray = result[i].visable_course.split(',');
             let visableIntArray = [];
             visableStrArray.forEach(function (data) {
                 visableIntArray.push(parseInt(data))
