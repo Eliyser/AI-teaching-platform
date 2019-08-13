@@ -9,7 +9,7 @@ class JupyterController extends Controller {
         var res = {}
         let user_id = parseInt(this.ctx.state.user);
         let result = await this.app.mysql.get('jupyter', {
-            user_id: 3
+            user_id: user_id
         });
         if (result !== null) {
             let targetDir = result.file_dir + '/' + user_id;
@@ -29,7 +29,7 @@ class JupyterController extends Controller {
     }
 
     async upload() {
-        
+
     }
 }
 
