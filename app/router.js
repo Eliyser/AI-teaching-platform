@@ -68,6 +68,9 @@ module.exports = app => {
   //上传图片获取图片路径
   router.post('/api/v1/admin/image/upload', controller.image.upload);
 
+  //获取jupyter路径
+  router.get('/api/v1/jupyterUrl',checkToken, controller.jupyter.getUrl);
+
 
 
   //测试

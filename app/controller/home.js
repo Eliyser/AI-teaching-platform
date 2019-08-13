@@ -15,6 +15,8 @@ class HomeController extends Controller {
   }
   async test() {
 
+
+    await this.ctx.render('jupyter')
     // // console.log(str.length)
     // let html_str = marked(str)
   //   let result0 = await this.app.mysql.select('project', {
@@ -37,12 +39,12 @@ class HomeController extends Controller {
   // const result = await this.app.mysql.select('course', {
   //   where: { course_id: courseArray }
   // });
-  this.ctx.body = 'kkdhfsdhfkdnfvkehr';
-  this.ctx.status = 400;
+  // this.ctx.body = 'kkdhfsdhfkdnfvkehr';
+  // this.ctx.status = 400;
 
 
-  this.ctx.body = '哈哈哈哈哈哈'
-  this.ctx.status = 200
+  // this.ctx.body = '哈哈哈哈哈哈'
+  // this.ctx.status = 200
     // let path = 'C:/Users/11023/Desktop/AI教学平台/openCV/opencv第一课.md';
     // let res = fs.readFileSync(path);
     // let str = res.toString();
