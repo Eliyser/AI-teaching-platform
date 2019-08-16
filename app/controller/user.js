@@ -136,15 +136,26 @@ class UserController extends Controller {
     for(let i = 0;i<res1.length;i++) {
       effectiveTime += parseInt(res1[i].count);
     }
-
-
+    //实验次数
+    
+    let result1 = await this.app.mysql.select('learning_progress_record',{
+      where: {
+        user_id: this.ctx.state.user,
+        project_status: 'finished'
+      }
+    })
+    let experimentsTime = result1.length;
+    console.log(result1)
     this.ctx.body = {
       msg: '用户信息获取成功',
       data: [{
         'stuId': result[0].user_id,
         'stuName': result[0].user_name,
         'stuSchool': result[0].school,
+        'stuGrade': result[0].grade,
         'stuAddtime': result[0].first_login_time,
+        'effectiveTime': effectiveTime,
+        "experimentsTime": experimentsTime
       }]
     }
 
