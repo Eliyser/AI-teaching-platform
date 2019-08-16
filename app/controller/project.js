@@ -43,6 +43,8 @@ class ProjectController extends Controller {
             res.data.project_name = result[0].project_name;
             res.data.step_amount = result[0].step_amount;
             res.data.steps = result[0].all_steps.split(';');
+            res.data.video_url = result[0].video_url;
+
             //处理md字符串
             let md_array = result[0].document.split(/(?=(?<!#)##\s)/g);
 
@@ -51,10 +53,10 @@ class ProjectController extends Controller {
             res.steps_md_array = md_array;
 
             //转换成html
-            let html_str = marked(result[0].document)
-            let steps = html_str.split(/(?=<h2)/g);
-            steps.shift();
-            res.data.steps_html = steps;
+            // let html_str = marked(result[0].document)
+            // let steps = html_str.split(/(?=<h2)/g);
+            // steps.shift();
+            // res.data.steps_html = steps;
 
         } else {
             res.msg = '获取项目信息失败';
