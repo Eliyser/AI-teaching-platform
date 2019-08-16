@@ -66,6 +66,7 @@ class ProjectController extends Controller {
     async create() {
         var res = {};
         let reqMsg = this.ctx.request.body;
+
         //接口数据规则
         const rule = {
             course_id: { type: 'int', required: true },
@@ -100,6 +101,8 @@ class ProjectController extends Controller {
         }
         let project_id = (result0.length === 0) ? 1 : parseInt(result0[0].project_id) + 1;
         let md_str = reqMsg.markdown;
+        
+        console.log('查看请求参数 md字符串     ------  '+md_str)
         //获取二级标题即步骤标题，生成步骤字符串存入
         // let steps_array = md_str.match(/(?<!#)(##\s)[^\n]*?\r/g);
         let steps_array = reqMsg.steps;
