@@ -30,7 +30,7 @@ class ProjectController extends Controller {
                 course_id: parseInt(requestMsg.course_id),
                 project_id: parseInt(requestMsg.project_id)
             },
-            columns: ['course_id', 'course_name', 'project_id', 'project_name', 'document', 'all_steps', 'step_amount'],
+            columns: ['course_id', 'course_name', 'project_id', 'project_name', 'document', 'all_steps', 'step_amount','video_url'],
            
         })
 
