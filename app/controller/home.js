@@ -14,37 +14,76 @@ class HomeController extends Controller {
     await ctx.render('index_admin');
   }
   async test() {
+    // var res = {}
+    // let reqMsg = {
+    //   course_id: 3,
 
+    // }
+    // let result2 = await this.app.mysql.get('course', {
+    //   course_id: reqMsg.course_id
+    // })
+    // let result0 = await this.app.mysql.select('project', {
+    //   where: {
+    //     course_id: reqMsg.course_id
+    //   },
+    //   columns: ['project_id'],
+    //   orders: [['project_id', 'desc']]
+    // });
 
-    await this.ctx.render('jupyter')
+    // if (result2.length === 0) {
+    //   res.msg = '参数course_id不对，没有此课程';
+    //   this.ctx.status = 400;
+    //   return this.ctx.body = res;
+    // }
+    // let project_id = (result0.length === 0) ? 1 : parseInt(result0[0].project_id) + 1;
+    // let md_str = reqMsg.markdown;
+    // //获取二级标题即步骤标题，生成步骤字符串存入
+    // // let steps_array = md_str.match(/(?<!#)(##\s)[^\n]*?\r/g);
+    // let steps_array = reqMsg.steps;
+    // let steps_str = '';
+    // for (let i = 0; i < steps_array.length; i++) {
+    //   i === steps_array.length - 1 ? steps_str = steps_str + steps_array[i] : steps_str = steps_str + steps_array[i] + ';'
+    // }
+
+    // let result1 = await this.app.mysql.insert('project', {
+    //   course_id: reqMsg.course_id,
+    //   project_id: project_id,
+    //   project_name: reqMsg.project_name,
+    //   project_description: reqMsg.description,
+    //   all_steps: steps_str,
+    //   step_amount: steps_array.length,
+    //   document: md_str
+    // })
+
+    // await this.ctx.render('jupyter')
     // // console.log(str.length)
     // let html_str = marked(str)
-  //   let result0 = await this.app.mysql.select('project', {
-  //     where: {
-  //       course_id: 8
-  //     },
-  //     columns: ['project_id'],
-  //     orders: [['project_id', 'desc']]
-  //   });
-  //   if(result0.length===0) {
-  //     console.log(1)
-  // } else {
-      
-  // };
-  // let strArray = [];
-  // let courseArray = []
-  // strArray.forEach(function (data) {
-  //   courseArray.push(parseInt(data))
-  // });
-  // const result = await this.app.mysql.select('course', {
-  //   where: { course_id: courseArray }
-  // });
-  // this.ctx.body = 'kkdhfsdhfkdnfvkehr';
-  // this.ctx.status = 400;
+    //   let result0 = await this.app.mysql.select('project', {
+    //     where: {
+    //       course_id: 8
+    //     },
+    //     columns: ['project_id'],
+    //     orders: [['project_id', 'desc']]
+    //   });
+    //   if(result0.length===0) {
+    //     console.log(1)
+    // } else {
+
+    // };
+    // let strArray = [];
+    // let courseArray = []
+    // strArray.forEach(function (data) {
+    //   courseArray.push(parseInt(data))
+    // });
+    // const result = await this.app.mysql.select('course', {
+    //   where: { course_id: courseArray }
+    // });
+    // this.ctx.body = 'kkdhfsdhfkdnfvkehr';
+    // this.ctx.status = 400;
 
 
-  // this.ctx.body = '哈哈哈哈哈哈'
-  // this.ctx.status = 200
+    // this.ctx.body = '哈哈哈哈哈哈'
+    // this.ctx.status = 200
     // let path = 'C:/Users/11023/Desktop/AI教学平台/openCV/opencv第一课.md';
     // let res = fs.readFileSync(path);
     // let str = res.toString();
@@ -91,7 +130,7 @@ class HomeController extends Controller {
 
 
 
-    
+
 
     // let html_str = marked(result.document);
 

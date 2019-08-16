@@ -47,6 +47,8 @@ module.exports = app => {
   router.get('/api/v1/record/time', checkToken, controller.record.show_time)
   //获取学生学习进度记录
   router.get('/api/v1/record/progress', checkToken, controller.record.show_progress)
+  //获取学生课程学习进度
+  router.get('/api/v1/record/courseProgress', checkToken, controller.record.show_course_progress)
   //删除学生学习记录
   router.delete('/api/v1/record', checkToken, controller.record.delete);
 

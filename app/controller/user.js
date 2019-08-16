@@ -111,27 +111,43 @@ class UserController extends Controller {
   //获取用户信息接口
   async userMsg() {
 
+
+    let res1 = await this.app.mysql.select('learning_date_record', {
+      where: {
+        user_id: this.ctx.state.user
+      },
+      columns: ['date', 'count'],
+      orders: [['date', 'desc']]
+    });
+
+
     let result = await this.app.mysql.select('user', {
 
       where: { user_id: this.ctx.state.user },
       columns: ['user_id', 'user_name', 'school', 'first_login_time']
     })
     if (result.length == 0) {
-      this.ctx.body = {
+      return this.ctx.body = {
         msg: '用户信息获取失败'
       }
 
-    } else {
-      this.ctx.body = {
-        msg: '用户信息获取成功',
-        data: [{
-          'stuId': result[0].user_id,
-          'stuName': result[0].user_name,
-          'stuSchool': result[0].school,
-          'stuAddtime': result[0].first_login_time,
-        }]
-      }
     }
+    let effectiveTime = 0;//有效学习时间
+    for(let i = 0;i<res1.length;i++) {
+      effectiveTime += parseInt(res1[i].count);
+    }
+
+
+    this.ctx.body = {
+      msg: '用户信息获取成功',
+      data: [{
+        'stuId': result[0].user_id,
+        'stuName': result[0].user_name,
+        'stuSchool': result[0].school,
+        'stuAddtime': result[0].first_login_time,
+      }]
+    }
+
 
   }
 

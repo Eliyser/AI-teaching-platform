@@ -73,55 +73,101 @@ class RecordService extends Service {
 
         var res = {};
 
-        let res1 = await this.app.mysql.get('learning_progress_record', {
-            user_id: req.user_id,
-            course_id: req.course_id
+        let res1 = await this.app.mysql.select('learning_progress_record', {
+            where: {
+                user_id: req.user_id,
+                course_id: req.course_id
+            }
         })
-        if (res1 === null) {
-            //用户没有学习记录
+
+        if (res1.length === 0) {
+            //用户没有学习记录, 插入记录
             let res2 = await this.app.mysql.insert('learning_progress_record', {
                 user_id: req.user_id,
                 course_id: req.course_id,
                 project_id: req.project_id,
                 current_step: req.current_step,
-                status: 'learning'
+                project_status: 'learning'
             })
 
             if (res2.affectedRows === 1) {
                 //插入成功
                 res.msg = "上报数据成功";
-            } else {
-                res.msg = "上报数据失败";
-                this.ctx.status = 400;
+                return res
             }
-        } else {
-            let res2 = await this.app.mysql.select('project', {
-                where: {
-                    course_id: req.course_id,
-                    project_id: req.project_id
-                },
-                columns: ['step_amount']
-            })
-            let res3 = await this.app.mysql.update('learning_progress_record', {
-                current_step: req.current_step,
-                project_id: req.project_id,
-                status: (parseInt(req.current_step) < parseInt(res2[0].step_amount)) ? 'learning' : 'finished'
-            }, {
+            res.msg = "上报数据失败";
+            this.ctx.status = 400;
+            return res
+        }
+        //用户该课程有学习记录，需要判断是否是同一个项目，如果是，更新学习进度，如果不是，判断之前的项目是否学完，未学完删除记录。学完了插入
+    
+        for (let i = 0; i < res1.length; i++) {
+
+            if (res1[i].project_status === 'learning' && res1[i].project_id === req.project_id) {
+                console.log(res1[i])
+                //更新记录
+                //获取项目步骤数
+                let res2 = await this.app.mysql.select('project', {
                     where: {
-                        user_id: req.user_id,
-                        course_id: req.course_id
-                        
-                    }
+                        course_id: req.course_id,
+                        project_id: req.project_id
+                    },
+                    columns: ['step_amount']
                 })
-            if (res3.affectedRows === 1) {
-                //插入成功
-                res.msg = "上报数据成功";
-            } else {
-                res.msg = "上报数据失败";
-                this.ctx.status = 400;
+                let res3 = await this.app.mysql.update('learning_progress_record', {
+          
+                    current_step: req.current_step,
+                    project_status: (parseInt(req.current_step) < parseInt(res2[0].step_amount)) ? 'learning' : 'finished'
+                }, {
+                        where: {
+                            user_id: req.user_id,
+                            course_id: req.course_id,
+                            project_id: req.project_id,
+                        }
+                    })
+                console.log(res3)
+                if (res3.affectedRows === 1) {
+                    //插入成功
+                    res.msg = "上报数据成功";
+                    return res;
+                  
+                } else {
+                    console.log('-------error-------')
+                    res.msg = "上报数据失败";
+                    this.ctx.status = 400;
+                    return res
+                }
+                
             }
+            if (res1[i].project_status === 'learning' && res1[i].project_id !== req.project_id) {
+                //删除记录
+                let res4 = await this.app.mysql.delete('learning_progress_record', {
+                    id: res1[i].id
+                })
+                console.log(res4)
+                if(res4.affectedRows === 1) {
+                    console.log('------delete-----')
+                }
+            }
+        }
+        // 插入记录
+        let res5 = await this.app.mysql.insert('learning_progress_record', {
+            user_id: req.user_id,
+            course_id: req.course_id,
+            project_id: req.project_id,
+            current_step: req.current_step,
+            project_status: 'learning'
+        })
+
+        if (res5.affectedRows === 1) {
+            console.log('----insert------')
+            //插入成功
+            res.msg = "上报数据成功";
+            return res;
 
         }
+        res.msg = "上报数据失败";
+        this.ctx.status = 400;
         return res;
 
     }
