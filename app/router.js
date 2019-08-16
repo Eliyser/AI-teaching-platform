@@ -69,7 +69,8 @@ module.exports = app => {
   router.resources('stuInfo', '/api/v1/admin/stuInfo', controller.stuInfo)
   //上传图片获取图片路径
   router.post('/api/v1/admin/image/upload', controller.image.upload);
-
+  //修改项目顺序
+  router.put('/api/v1/project/order',controller.project.order);
 
   
   //获取jupyter路径

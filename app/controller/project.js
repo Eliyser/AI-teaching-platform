@@ -30,7 +30,8 @@ class ProjectController extends Controller {
                 course_id: parseInt(requestMsg.course_id),
                 project_id: parseInt(requestMsg.project_id)
             },
-            columns: ['course_id', 'course_name', 'project_id', 'project_name', 'document', 'all_steps', 'step_amount']
+            columns: ['course_id', 'course_name', 'project_id', 'project_name', 'document', 'all_steps', 'step_amount'],
+           
         })
 
         if (result.length != 0) {
@@ -101,8 +102,8 @@ class ProjectController extends Controller {
         }
         let project_id = (result0.length === 0) ? 1 : parseInt(result0[0].project_id) + 1;
         let md_str = reqMsg.markdown;
-        
-        console.log('查看请求参数 md字符串     ------  '+md_str)
+
+        console.log('查看请求参数 md字符串     ------  ' + md_str)
         //获取二级标题即步骤标题，生成步骤字符串存入
         // let steps_array = md_str.match(/(?<!#)(##\s)[^\n]*?\r/g);
         let steps_array = reqMsg.steps;
@@ -211,7 +212,7 @@ class ProjectController extends Controller {
         //验证接口数据规则
         try {
             await this.ctx.validate(rule, reqMsg);//校验数据
-            
+
         } catch (e) {
             res.msg = '参数格式不对';
             this.ctx.status = 400;
@@ -225,14 +226,35 @@ class ProjectController extends Controller {
         let result2 = await this.app.mysql.get('course', {
             course_id: reqMsg.course_id
         })
-        console.log(parseInt(result2.project_amount)===0? 0:parseInt(result2.project_amount) - 1)
+        console.log(parseInt(result2.project_amount) === 0 ? 0 : parseInt(result2.project_amount) - 1)
         let result3 = await this.app.mysql.update('course', {
-            project_amount: parseInt(result2.project_amount)===0? 0:parseInt(result2.project_amount) - 1
+            project_amount: parseInt(result2.project_amount) === 0 ? 0 : parseInt(result2.project_amount) - 1
         }, {
                 where: {
                     course_id: reqMsg.course_id
                 }
             });
+        //维持项目id的连续，调整项目id
+        let result4 = await this.app.mysql.select('project', {
+            where: {
+                course_id: reqMsg.course_id,
+            },
+            columns: ['project_serial'],
+            orders: [['project_id', 'asc']]
+        })
+
+        for (let index = 0; index < result4.length; index++) {
+            //调整项目id
+            let result5 = await this.app.mysql.update('project', {
+                project_id: index + 1
+            }, {
+                    where: {
+                        project_serial: result4[index].project_serial
+                    },
+                })
+            console.log(result5)
+        }
+
         if (result1.affectedRows === 1 && result3.affectedRows === 1) {
             res.msg = '删除项目信息成功';
         } else {
@@ -241,6 +263,59 @@ class ProjectController extends Controller {
         }
         this.ctx.body = res;
     }
+
+    //修改项目顺序
+    async order() {
+        let reqMsg = this.ctx.request.body;
+        var res = {}
+        //验证接口
+        const rule = {
+            course_id: { type: 'int', required: true },
+            project_order: { type: 'array', required: true },
+        };
+        try {
+            await this.ctx.validate(rule, reqMsg);//校验数据
+
+        } catch (error) {
+            res.msg = '参数格式不对';
+            this.ctx.status = 400;
+            return this.ctx.body = res;
+        }
+        let result1 = await this.app.mysql.select('project', {
+            where: {
+                course_id: reqMsg.course_id
+            },
+            columns: ['project_serial', 'project_id'],
+            orders: [['project_id', 'asc']]
+        })
+        if (reqMsg.project_order.length !== result1.length) {
+            res.msg = '参数格式不对，项目数量不符';
+            this.ctx.status = 400;
+            return this.ctx.body = res;
+        }
+        for (let index = 0; index < result1.length; index++) {
+            //调整项目id
+            let i = result1.findIndex(v => v.project_id === parseInt(reqMsg.project_order[index]))
+
+            let result2 = await this.app.mysql.update('project', {
+                project_id: index + 1
+            }, {
+                    where: {
+                        project_serial: result1[i].project_serial
+                    },
+                })
+ 
+            if(result2.affectedRows !==1) {
+               res.msg = '修改项目顺序失败';
+               this.ctx.status = 400;
+               return this.ctx.body = res;
+            }
+        }
+
+        res.msg = '修改项目顺序成功';
+        this.ctx.body = res;
+    }
+
 }
 
 module.exports = ProjectController;

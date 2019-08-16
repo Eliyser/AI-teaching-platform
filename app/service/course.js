@@ -12,7 +12,8 @@ class CourseService extends Service {
     let result;
     try {
         result = await this.app.mysql.select('specific_project', {
-        where: { course_id: c_id }
+        where: { course_id: c_id },
+        orders: [['project_id', 'asc']]
       })
     } catch (error) {
       res.msg = '获取项目信息失败';

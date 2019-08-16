@@ -14,14 +14,96 @@ class HomeController extends Controller {
     await ctx.render('index_admin');
   }
   async testmysql() {
-    let res = await this.app.mysql.insert('test',{
-      // test: '拉拉α哈哈哈 𝑎_𝑥,𝑎_𝑦, 𝑎_𝑧  a'
 
-      test: '&#xD835;&#xDC4E;_&#xD835;&#xDC65;,&#xD835;&#xDC4E;_&#xD835;&#xDC66;, &#xD835;&#xDC4E;_&#xD835;&#xDC67;'
 
-    })
-    let res1 = await this.app.mysql.select('test')
-    this.ctx.body = res1
+    var hisCourse = [
+      {
+        "course_id": 3,
+        "course_name": "图像处理-OpenCV单元",
+        "course_img": "/public/images/course/3.png",
+        "project_id": 3,
+        "project_name": "任务3：AI社交应用-找出漫展中的Coser",
+        "current_step": 1,
+        "project_progress": "1/6",
+        "project_status": "learning"
+      },
+      {
+        "course_id": 1,
+        "course_name": "操作环境-linux单元",
+        "course_img": "/public/images/course/1.png",
+        "project_id": 1,
+        "project_name": "Linux基础命令应用-洞察Linux系统",
+        "current_step": 1,
+        "project_progress": "1/5",
+        "project_status": "learning"
+      },
+      {
+        "course_id": 1,
+        "course_name": "操作环境-linux单元",
+        "course_img": "/public/images/course/1.png",
+        "project_id": 1,
+        "project_name": "Linux基础命令应用-洞察Linux系统",
+        "current_step": 1,
+        "project_progress": "1/5",
+        "project_status": "learning"
+      }
+    ] ;
+    var data = {
+      "course_id": 1,
+      "header": {
+        "title": "操作环境-linux单元",
+        "introduction": "熟练地使用 Linux，本实验中通过在线动手实验的方式学习 Linux 常用命令，用户与权限管理，目录结构与文件操作等基本知识点"
+      },
+      "body": {
+        "title": "章节内容",
+        "project": [
+          {
+            "project_id": 1,
+            "title": "Linux基础命令应用-洞察Linux系统",
+            "content": "知识点: 1.linux为何物 2.linux历史简介 3.linux重要人物 4.linux与windows的不同 5.如何学习linux"
+          },
+          {
+            "project_id": 2,
+            "title": "Linux压缩与解压应用-文件管理实现",
+            "content": "知识点: 1.Linux基本命令 2.通配符的使用 3.查看帮助文档"
+          },
+          {
+            "project_id": 3,
+            "title": "Linux Vim命令应用-文本编辑实现",
+            "content": "知识点: 1.每个目录的大体内容 2.文件的属性 3.touch,file,rm,mv等基本命令"
+          },
+          {
+            "project_id": 4,
+            "title": "Linux软件安装-安装有趣的应用",
+            "content": "知识点: 1.ls、cd、pwd、mkdir等命令的使用"
+          },
+          {
+            "project_id": 5,
+            "title": "SSH 技术应用-树莓派远程控制",
+            "content": "知识点: 1.xxxx"
+          }
+        ]
+      }
+    };
+    
+    for (let i = 0; i < data.body.project.length; i++) {
+      hisCourse.forEach(element => {
+        data.body.project[i].status = (data.course_id === element.course_id && data.body.project[i].project_id === element.project_id )? element.project_status:'unfinished';
+      });
+    }
+    this.ctx.body = data
+
+
+
+
+    // let res = await this.app.mysql.insert('test', {
+    //   // test: '拉拉α哈哈哈 𝑎_𝑥,𝑎_𝑦, 𝑎_𝑧  a'
+
+    //   test: '&#xD835;&#xDC4E;_&#xD835;&#xDC65;,&#xD835;&#xDC4E;_&#xD835;&#xDC66;, &#xD835;&#xDC4E;_&#xD835;&#xDC67;'
+
+    // })
+    // let res1 = await this.app.mysql.select('test')
+    // this.ctx.body = res1
   }
   async test() {
     // var res = {}
