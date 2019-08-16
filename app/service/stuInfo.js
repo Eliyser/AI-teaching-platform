@@ -21,6 +21,9 @@ class StuInfoService extends Service {
                     user_name: req.info[i].stuName,
                     password: req.info[i].password,
                     school: req.info[i].stuSchool,
+                    grade:  req.info[i].stuGrade,
+                    class:  req.info[i].stuClass,
+
                     visable_course: req.info[i].visable_course_id
                 })
             } catch (error) {
@@ -67,6 +70,14 @@ class StuInfoService extends Service {
             if (info[i].stuSchool) {
                 row.school = info[i].stuSchool
             }
+            if (info[i].stuGrade) {
+                row.grade = info[i].stuGrade
+            }
+            if (info[i].stuClass) {
+                row.class = info[i].stuClass
+            }
+        
+
             console.log(row)
             let options = {
                 where: {

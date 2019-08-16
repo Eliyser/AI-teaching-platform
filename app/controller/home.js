@@ -13,6 +13,16 @@ class HomeController extends Controller {
     const { ctx } = this;
     await ctx.render('index_admin');
   }
+  async testmysql() {
+    let res = await this.app.mysql.insert('test',{
+      // test: '拉拉α哈哈哈 𝑎_𝑥,𝑎_𝑦, 𝑎_𝑧  a'
+
+      test: '&#xD835;&#xDC4E;_&#xD835;&#xDC65;,&#xD835;&#xDC4E;_&#xD835;&#xDC66;, &#xD835;&#xDC4E;_&#xD835;&#xDC67;'
+
+    })
+    let res1 = await this.app.mysql.select('test')
+    this.ctx.body = res1
+  }
   async test() {
     // var res = {}
     // let reqMsg = {

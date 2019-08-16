@@ -23,6 +23,8 @@ class StuInfoController extends Controller {
                     stuName: result[i].user_name,
                     password: result[i].password,
                     stuSchool: result[i].school,
+                    stuGrade:  result[i].grade,
+                    stuClass:  result[i].class,
                     visable_course: [],
                     hidden_course: allArray
                 })
@@ -45,6 +47,8 @@ class StuInfoController extends Controller {
                 stuName: result[i].user_name,
                 password: result[i].password,
                 stuSchool: result[i].school,
+                stuGrade:  result[i].grade,
+                    stuClass:  result[i].class,
                 visable_course: visable_course,
                 hidden_course: hidden_course
             })

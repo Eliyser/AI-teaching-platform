@@ -124,7 +124,7 @@ class UserController extends Controller {
     let result = await this.app.mysql.select('user', {
 
       where: { user_id: this.ctx.state.user },
-      columns: ['user_id', 'user_name', 'school', 'first_login_time']
+      columns: ['user_id', 'user_name', 'school', 'first_login_time','grade','class']
     })
     if (result.length == 0) {
       return this.ctx.body = {
@@ -152,7 +152,7 @@ class UserController extends Controller {
         'stuId': result[0].user_id,
         'stuName': result[0].user_name,
         'stuSchool': result[0].school,
-        'stuGrade': result[0].grade,
+        'stuGrade': result[0].grade+ result[0].class+'班',
         'stuAddtime': result[0].first_login_time,
         'effectiveTime': effectiveTime,
         "experimentsTime": experimentsTime

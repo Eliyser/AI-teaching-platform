@@ -70,6 +70,8 @@ module.exports = app => {
   //上传图片获取图片路径
   router.post('/api/v1/admin/image/upload', controller.image.upload);
 
+
+  
   //获取jupyter路径
   router.get('/api/v1/jupyterUrl',checkToken, controller.jupyter.getUrl);
 
@@ -78,5 +80,8 @@ module.exports = app => {
   //测试
   router.get('/api/v1/test', controller.home.test);
   router.get('/api/v1/testsh', controller.shell.open);
+  router.get('/api/v1/testmysql', controller.home.testmysql);
+
+  
 
 };
