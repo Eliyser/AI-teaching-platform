@@ -84,7 +84,18 @@ class AdminController extends Controller {
     }
 
   }
+  //管理员登出接口
+  async logout() {
 
+    try {
+      this.ctx.cookies.set('egg_admin_token', null);
+      this.ctx.body = {
+        msg: '注销成功'
+      }
+    } catch (e) {
+      this.ctx.throw(400, '注销失败');
+    }
+  }
   //管理员获取全部课程
   async allCourse() {
     var res = {};

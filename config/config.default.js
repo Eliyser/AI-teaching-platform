@@ -77,6 +77,10 @@ module.exports = appInfo => {
   config.multipart = {
     // mode: 'file',
     fileSize: '80mb',
+    fileExtensions: [
+      '.foo',
+      '.apk',
+    ],
   };
   return config;
 };

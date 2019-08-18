@@ -20,23 +20,23 @@ module.exports = app => {
   //用户登录
   router.post('/api/v1/login', checkToken, controller.user.login);
   //用户登出
-  router.get('/api/v1/logout',controller.user.logout)
+  router.get('/api/v1/logout', controller.user.logout)
   //验证用户登录状态
   router.get('/api/v1/verifyUser', controller.user.vertify);
   //获取用户信息
   router.get('/api/v1/userMsg', checkToken, controller.user.userMsg);
 
   //restful风格，对course的增删查改
-  router.resources('course', '/api/v1/course' , controller.course)
+  router.resources('course', '/api/v1/course', controller.course)
   //获取该学生可见的所有标签
   router.get('/api/v1/courseTag', controller.course.getTag)
-  
+
   //对项目的增删查改
   // router.resources('project','/api/v1/project', controller.project);
-  router.get('/api/v1/project',  controller.project.index);
-  router.post('/api/v1/project',  controller.project.create);
-  router.put('/api/v1/project',  controller.project.update);
-  router.delete('/api/v1/project',  controller.project.delete);
+  router.get('/api/v1/project', controller.project.index);
+  router.post('/api/v1/project', controller.project.create);
+  router.put('/api/v1/project', controller.project.update);
+  router.delete('/api/v1/project', controller.project.delete);
 
 
   //记录学生学习进度
@@ -53,9 +53,12 @@ module.exports = app => {
   router.delete('/api/v1/record', checkToken, controller.record.delete);
 
   //管理员模块
+  //管理员登录
   router.post('/api/v1/admin/login', controller.admin.login)
   //验证管理员登录状态
   router.get('/api/v1/admin/verifyAdmin', controller.admin.vertify);
+  //管理员登出
+  router.get('/api/v1/admin/logout', controller.admin.logout)
   //获取所有课程
   router.get('/api/v1/admin/course/all_courses', controller.admin.allCourse);
   //获取该学生可见的所有标签
@@ -67,14 +70,15 @@ module.exports = app => {
   router.get('/api/v1/admin/stuId', controller.admin.getBeginId);
   //resful风格对学生信息的增删查改
   router.resources('stuInfo', '/api/v1/admin/stuInfo', controller.stuInfo)
+  //修改项目顺序
+  router.put('/api/v1/project/order', controller.project.order);
   //上传图片获取图片路径
   router.post('/api/v1/admin/image/upload', controller.image.upload);
-  //修改项目顺序
-  router.put('/api/v1/project/order',controller.project.order);
+  //上传视频获取视频路径
+  router.post('/api/v1/admin/video/upload', controller.video.upload);
 
-  
   //获取jupyter路径
-  router.get('/api/v1/jupyterUrl',checkToken, controller.jupyter.getUrl);
+  router.get('/api/v1/jupyterUrl', checkToken, controller.jupyter.getUrl);
 
 
 
@@ -83,6 +87,6 @@ module.exports = app => {
   router.get('/api/v1/testsh', controller.shell.open);
   router.get('/api/v1/testmysql', controller.home.testmysql);
 
-  
+
 
 };
