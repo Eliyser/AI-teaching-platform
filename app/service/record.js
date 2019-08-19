@@ -89,8 +89,19 @@ class RecordService extends Service {
                 current_step: req.current_step,
                 project_status: 'learning'
             })
-
-            if (res2.affectedRows === 1) {
+            //更新课程学习人数
+            //获取当前课程学习人数
+            let res3 = await this.app.mysql.get('course',{
+                course_id: req.course_id
+            })
+            let res4 = await this.app.mysql.update('course',{
+                learn_amount: parseInt(res3.learn_amount) + 1
+            },{
+                where: {
+                    course_id: req.course_id
+                }
+            })
+            if (res2.affectedRows === 1 && res4.affectedRows === 1) {
                 //插入成功
                 res.msg = "上报数据成功";
                 return res
@@ -166,7 +177,8 @@ class RecordService extends Service {
                 }
             }
         }
-        // 该课程第一次学习或者该项目第一次学习，直接插入记录
+
+        // 该课程有学习记录，但该项目没有，说明该项目第一次学习，直接插入记录
         let res5 = await this.app.mysql.insert('learning_progress_record', {
             user_id: req.user_id,
             course_id: req.course_id,
