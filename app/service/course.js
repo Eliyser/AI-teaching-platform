@@ -143,6 +143,8 @@ class CourseService extends Service {
         course_id: id
       }
     })
+
+    console.log(result)
     if (result.affectedRows === 1) {
       return true;
     }

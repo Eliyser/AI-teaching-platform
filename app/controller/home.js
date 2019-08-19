@@ -31,7 +31,9 @@ class HomeController extends Controller {
     // this.ctx.body = res1
   }
   async test() {
-    await this.ctx.render('jupyter');
+    // await this.ctx.render('jupyter');
+    let date = new Date();
+    this.ctx.body = date.getTime()
     // var res = {}
     // let reqMsg = {
     //   course_id: 3,

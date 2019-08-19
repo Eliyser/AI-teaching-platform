@@ -187,7 +187,8 @@ class CourseController extends Controller {
           let type = part.mimeType.replace('image/', '');
           if (type === 'jpeg') { type = 'jpg' }
           console.log(type)
-          let url = '/public/images/course/' + id + '.' + type;
+          let date = new Date().getTime();
+          let url = '/public/images/course/' + id +'_'+date + '.' + type;
           updateInfo.image_url = url;
           let target = path.join(this.config.baseDir, 'app', url);
           const writeStream = fs.createWriteStream(target);
