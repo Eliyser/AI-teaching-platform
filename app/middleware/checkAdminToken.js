@@ -19,7 +19,8 @@ module.exports = options => {
         if (ctx.path === '/api/v1/admin/register' || ctx.path === '/api/v1/admin/login') {
           await next();
         } else {
-          ctx.throw(401, '未授权，请登录');
+          ctx.status = 401;
+            return ctx.body = '未授权，请登录';
         }
       } else {
         //cookie存在，判断用户登录信息是否过期
@@ -27,14 +28,20 @@ module.exports = options => {
         try {
           console.log('token :'+token);
           decode = JWT.verify(token, options.secret);
-          if (!decode || !decode.user_id) {
-            ctx.throw(401, '未授权，请登录');
+          console.log(decode)
+          if (!decode || !decode.name) {
+     
+            ctx.status = 401;
+            return ctx.body = '未授权，请登录';
+            
           }
           else if (Date.now()/1000 - decode.exp > 0) {
-            ctx.throw(402, '登录已过期，请重新登录');
+
+            ctx.status = 402;
+            return ctx.body = '登录已过期，请重新登录';
           }
           else {
-            ctx.state.admin = decode.user_id;
+            ctx.state.admin = decode.name;
           }
 
         } catch (e) {
