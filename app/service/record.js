@@ -99,11 +99,23 @@ class RecordService extends Service {
             this.ctx.status = 400;
             return res
         }
-        //用户该课程有学习记录，需要判断是否是同一个项目，如果是，更新学习进度，如果不是，判断之前的项目是否学完，未学完删除记录。学完了插入
-    
+        //同个课程。用户该课程有学习记录，需要判断是否是同一个项目，如果是，更新学习进度，如果不是，判断之前的项目是否学完，未学完删除记录。学完了插入
+        //如果是同个项目，用户已经学完了，但是重新开始了学习，
         for (let i = 0; i < res1.length; i++) {
-
+            
+            if (res1[i].project_status === 'finished' && res1[i].project_id === req.project_id) {
+                //同个项目,但是之前已经学过了，学完了。重新开始学习，把之前的记录删掉
+                let res4 = await this.app.mysql.delete('learning_progress_record', {
+                    id: res1[i].id
+                })
+                console.log(res4)
+                if(res4.affectedRows === 1) {
+                    console.log('------delete-----')
+                }
+            }
+            
             if (res1[i].project_status === 'learning' && res1[i].project_id === req.project_id) {
+                //同个项目，还没学完
                 console.log(res1[i])
                 //更新记录
                 //获取项目步骤数
@@ -139,7 +151,9 @@ class RecordService extends Service {
                 }
                 
             }
+            
             if (res1[i].project_status === 'learning' && res1[i].project_id !== req.project_id) {
+                //不同项目，但是正在学习
                 //删除记录
                 let res4 = await this.app.mysql.delete('learning_progress_record', {
                     id: res1[i].id
@@ -150,7 +164,7 @@ class RecordService extends Service {
                 }
             }
         }
-        // 插入记录
+        // 该课程第一次学习，直接插入记录
         let res5 = await this.app.mysql.insert('learning_progress_record', {
             user_id: req.user_id,
             course_id: req.course_id,
