@@ -34,9 +34,9 @@ module.exports = app => {
   //对项目的增删查改
   // router.resources('project','/api/v1/project', controller.project);
   router.get('/api/v1/project', controller.project.index);
-  router.post('/api/v1/project', controller.project.create);
-  router.put('/api/v1/project', controller.project.update);
-  router.delete('/api/v1/project', controller.project.delete);
+  router.post('/api/v1/project', checkAdminToken,controller.project.create);
+  router.put('/api/v1/project', checkAdminToken, controller.project.update);
+  router.delete('/api/v1/project', checkAdminToken, controller.project.delete);
 
 
   //记录学生学习进度
@@ -60,18 +60,18 @@ module.exports = app => {
   //管理员登出
   router.get('/api/v1/admin/logout', controller.admin.logout)
   //获取所有课程
-  router.get('/api/v1/admin/course/all_courses', controller.admin.allCourse);
-  //获取该学生可见的所有标签
-  router.get('/api/v1/admin/courseTag', controller.admin.getTag)
+  router.get('/api/v1/admin/course/all_courses',checkAdminToken, controller.admin.allCourse);
+  //获取所有标签
+  router.get('/api/v1/admin/courseTag', checkAdminToken, controller.admin.getTag)
   //
   router.get('/api/v1/admin/course', controller.course.show)
 
   //获取学生选课情况和其它个人信息
-  router.get('/api/v1/admin/stuId', controller.admin.getBeginId);
+  router.get('/api/v1/admin/stuId', checkAdminToken, controller.admin.getBeginId);
   //resful风格对学生信息的增删查改
-  router.resources('stuInfo', '/api/v1/admin/stuInfo', controller.stuInfo)
+  router.resources('stuInfo', '/api/v1/admin/stuInfo',checkAdminToken, controller.stuInfo)
   //修改项目顺序
-  router.put('/api/v1/project/order', controller.project.order);
+  router.put('/api/v1/project/order', checkAdminToken,controller.project.order);
   //上传图片获取图片路径
   router.post('/api/v1/admin/image/upload', controller.image.upload);
   //上传视频获取视频路径

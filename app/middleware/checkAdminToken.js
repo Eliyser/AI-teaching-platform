@@ -34,7 +34,7 @@ module.exports = options => {
             ctx.throw(402, '登录已过期，请重新登录');
           }
           else {
-            ctx.state.user = decode.user_id;
+            ctx.state.admin = decode.user_id;
           }
 
         } catch (e) {
