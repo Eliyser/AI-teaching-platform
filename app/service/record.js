@@ -99,6 +99,15 @@ class RecordService extends Service {
             this.ctx.status = 400;
             return res
         }
+        //获取项目步骤数
+        let r = await this.app.mysql.select('project', {
+            where: {
+                course_id: req.course_id,
+                project_id: req.project_id
+            },
+            columns: ['step_amount']
+        })
+        var step_amount = parseInt(r[0].step_amount)
         //同个课程。用户该课程有学习记录，需要判断是否是同一个项目，如果是，更新学习进度，如果不是，判断之前的项目是否学完，未学完删除记录。学完了插入
         //如果是同个项目，用户已经学完了，但是重新开始了学习，
         for (let i = 0; i < res1.length; i++) {
@@ -113,23 +122,16 @@ class RecordService extends Service {
                     console.log('------delete-----')
                 }
             }
-            
+
             if (res1[i].project_status === 'learning' && res1[i].project_id === req.project_id) {
                 //同个项目，还没学完
                 console.log(res1[i])
                 //更新记录
-                //获取项目步骤数
-                let res2 = await this.app.mysql.select('project', {
-                    where: {
-                        course_id: req.course_id,
-                        project_id: req.project_id
-                    },
-                    columns: ['step_amount']
-                })
+                
                 let res3 = await this.app.mysql.update('learning_progress_record', {
           
                     current_step: req.current_step,
-                    project_status: (parseInt(req.current_step) < parseInt(res2[0].step_amount)) ? 'learning' : 'finished'
+                    project_status: (parseInt(req.current_step) < step_amount) ? 'learning' : 'finished'
                 }, {
                         where: {
                             user_id: req.user_id,
@@ -164,13 +166,13 @@ class RecordService extends Service {
                 }
             }
         }
-        // 该课程第一次学习，直接插入记录
+        // 该课程第一次学习或者该项目第一次学习，直接插入记录
         let res5 = await this.app.mysql.insert('learning_progress_record', {
             user_id: req.user_id,
             course_id: req.course_id,
             project_id: req.project_id,
             current_step: req.current_step,
-            project_status: 'learning'
+            project_status: (parseInt(req.current_step) < step_amount) ? 'learning' : 'finished'
         })
 
         if (res5.affectedRows === 1) {
