@@ -39,7 +39,8 @@ class VideoController extends Controller {
                     console.log(type);
                     
                     let result = await this.ctx.service.video.upload(course_id, project_id, type,count)
-                    target = targetDir + course_id + '_' + project_id + '.' + type ;
+                    let date = new Date().getTime();
+                    target = targetDir + course_id + '_' + project_id + '_'+date+'.' + type ;
                     url = result.url;
                     if (url === null) {
                         res.msg = '上传失败';

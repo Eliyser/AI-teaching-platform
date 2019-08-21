@@ -4,8 +4,9 @@ const Service = require('egg').Service;
 
 class VideoService extends Service {
     async upload(cid, pid, type) {
-
-        let video_url = '/public/videos/' + cid + '_' + pid + '.' + type
+        let date = new Date().getTime();
+        
+        let video_url = '/public/videos/' + cid + '_' + pid +'_'+date+ '.' + type
         let result1 = await this.app.mysql.update('project', {
             video_url: video_url
         }, {
