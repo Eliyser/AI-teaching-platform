@@ -29,9 +29,7 @@ class ProjectController extends Controller {
             where: {
                 course_id: parseInt(requestMsg.course_id),
                 project_id: parseInt(requestMsg.project_id)
-            },
-            columns: ['course_id', 'course_name', 'project_id', 'project_name', 'document', 'all_steps', 'step_amount','video_url'],
-           
+            }
         })
 
         if (result.length != 0) {
@@ -44,7 +42,7 @@ class ProjectController extends Controller {
             res.data.step_amount = result[0].step_amount;
             res.data.steps = result[0].all_steps.split(';');
             res.data.video_url = result[0].video_url;
-
+            res.data.project_description = result[0].project_description;
             //处理md字符串
             let md_array = result[0].document.split(/(?=(?<!#)##\s)/g);
 
