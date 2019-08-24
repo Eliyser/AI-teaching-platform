@@ -49,7 +49,7 @@ class RecordController extends Controller {
     };
     try {
       await this.ctx.validate(rule, req);//校验数据
-      
+
     } catch (error) {
       console.log(error)
       this.ctx.status = 400;
@@ -151,33 +151,36 @@ class RecordController extends Controller {
   //显示课程学习进度
   async show_course_progress() {
     var res = {};
-    let result1,result2;
+    let result1, result2;
     try {
-      result1 = await this.app.mysql.select('learning_progress', {
+      result1 = await this.app.mysql.select('learning_course_record', {
         where: {
           user_id: this.ctx.state.user
-        },
-        columns: ['course_id', 'course_name', 'project_id', 'project_status', 'project_amount']
+        }
       });
       result2 = await this.app.mysql.select('course', {
         columns: ['course_id', 'course_name', 'project_amount']
       });
-  
+
     } catch (error) {
       res.msg = '获取课程进度失败'
       return this.ctx.body = res
     }
-    
+
     //遍历全部课程数组
     for (let i = 0; i < result2.length; i++) {
-      let count = 0;
+      var count = 0;
       await result1.forEach(e => {
-        if (e.course_id === result2[i].course_id && e.project_status === 'finished') {
-          count++;
+        if (e.course_id === result2[i].course_id) {
+          count = e.finished_projects === null ? 0 : e.finished_projects.split(',').length;
+
+          result2[i].course_status = e.course_status;
+
         }
+
       });
-      console.log(count + '  --------  ' + result2[i].project_amount)
-      result2[i].data = count === 0 ? 0 : parseInt(count) / parseInt(result2[i].project_amount)
+      // console.log(count + '  --------  ' + result2[i].project_amount)
+      result2[i].data = count === 0 ? 0 : parseInt(count) / parseInt(result2[i].project_amount);
     }
     res.msg = '获取课程进度成功'
     res.data = result2;
@@ -191,17 +194,19 @@ class RecordController extends Controller {
   async delete() {
     var res = {};
     let id = this.ctx.query.course_id;
-    let result = await this.app.mysql.delete('learning_progress_record', {
-      user_id: this.ctx.state.user,
-      course_id: id
-    })
-    if (result.affectedRows === 1) {
-      res.msg = '删除学习记录成功'
-    } else {
+
+    try {
+      let result = await this.app.mysql.delete('learning_progress_record', {
+        user_id: this.ctx.state.user,
+        course_id: id
+      })
+      console.log(result)
+
+    } catch (error) {
       res.msg = '删除学习记录失败'
       this.ctx.status = 400
     }
-
+    res.msg = '删除学习记录成功'
     this.ctx.body = res;
   }
 
