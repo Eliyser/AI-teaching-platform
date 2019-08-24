@@ -174,7 +174,7 @@ class RecordController extends Controller {
         if (e.course_id === result2[i].course_id) {
           count = e.finished_projects === null ? 0 : e.finished_projects.split(',').length;
 
-          result2[i].course_status = e.course_status;
+          // result2[i].course_status = e.course_status;
 
         }
 
