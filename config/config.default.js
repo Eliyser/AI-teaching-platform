@@ -82,5 +82,11 @@ module.exports = appInfo => {
       '.apk',
     ],
   };
+  config.alinode = {
+   server: 'wss://agentserver.node.aliyun.com:8080',
+   appid: '81727',
+   secret: 'c07688bc1b145e29827b59894b2a2cd433aadf29',
+   logdir: '/root/logs/alinode/'
+ }
   return config;
 };
