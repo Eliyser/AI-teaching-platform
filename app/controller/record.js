@@ -173,13 +173,12 @@ class RecordController extends Controller {
       await result1.forEach(e => {
         if (e.course_id === result2[i].course_id) {
           count = e.finished_projects === null ? 0 : e.finished_projects.split(',').length;
-
           // result2[i].course_status = e.course_status;
-
         }
 
       });
-      // console.log(count + '  --------  ' + result2[i].project_amount)
+
+      
       result2[i].data = count === 0 ? 0 : parseInt(count) / parseInt(result2[i].project_amount);
     }
     res.msg = '获取课程进度成功'
